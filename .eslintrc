@@ -1,0 +1,83 @@
+{
+	"root": true,
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking"
+	],
+	"plugins": [
+		"@typescript-eslint"
+	],
+	"parserOptions": {
+		"project": [
+			"tsconfig.json"
+		],
+		"parser": "@typescript-eslint/parser"
+	},
+	"rules": {
+		"@typescript-eslint/member-delimiter-style": [
+			"error",
+			{
+				"multiline": {
+					"delimiter": "semi",
+					"requireLast": true
+				},
+				"singleline": {
+					"delimiter": "semi",
+					"requireLast": true
+				}
+			}
+		],
+		"@typescript-eslint/no-explicit-any": "error",
+		"@typescript-eslint/semi": "error",
+		"quote-props": [
+			"error",
+			"consistent-as-needed"
+		],
+		"semi": "error",
+		"no-extra-semi": "error",
+		"quotes": [
+			"error",
+			"double"
+		],
+		"arrow-parens": [
+			"error",
+			"as-needed"
+		],
+		"newline-per-chained-call": "off",
+		"array-element-newline": "off",
+		"function-paren-newline": [
+			"error",
+			"consistent"
+		],
+		"object-property-newline": "off",
+		"comma-dangle": [
+			"error",
+			"never"
+		],
+		"nonblock-statement-body-position": [
+			"error",
+			"below"
+		],
+		"eqeqeq": "error",
+		"max-len": [
+			"error",
+			{
+				"code": 120,
+				"tabWidth": 4,
+				"ignoreComments": true,
+				"ignoreTrailingComments": true,
+				"ignoreUrls": true,
+				"ignoreStrings": true,
+				"ignoreTemplateLiterals": true,
+				"ignoreRegExpLiterals": true
+			}
+		]
+	}
+}

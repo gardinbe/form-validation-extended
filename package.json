@@ -1,0 +1,36 @@
+{
+  "name": "form-validator",
+  "version": "1.0.0",
+  "description": "A utility to validate HTML forms.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gardinbe/html-form-validator"
+  },
+  "keywords": [
+    "Validation",
+    "HTML",
+    "Forms",
+    "Forms",
+    "Form",
+    "validation"
+  ],
+  "author": "Ben Gardiner",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
