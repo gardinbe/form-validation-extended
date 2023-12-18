@@ -201,7 +201,7 @@ The default presets are `"email"` and `"phone-number"`. You can define additiona
 const fv = new FormValidator(form, {
 	patternPresets: {
 		postcode: /some-regex-pattern/
-        ...
+		...
 	}
 });
 ```
