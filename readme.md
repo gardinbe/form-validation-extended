@@ -141,7 +141,7 @@ This specifies the name of another field whose value this one must match.
 For example confirm email, password, etc.
 
 ### User-entry form controls
-Any form control of the following type is considered a text field:
+Any form control of the following type is considered a user-entry field:
 
 - `text`
 - `tel`
