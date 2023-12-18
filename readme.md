@@ -8,7 +8,7 @@ Validation rules are specified entirely within the form control elements themsel
 
 
 
-## Example HTML
+# Example HTML
 
 ```html
 <form>
@@ -55,7 +55,7 @@ Validation rules are specified entirely within the form control elements themsel
 
 
 
-## Example JS
+# Example JS
 
 ```typescript
 /*
@@ -107,7 +107,7 @@ form.addEventListener("submit", ev => {
 
 
 
-## User-accessible attributes (for CSS)
+# User-accessible attributes (for CSS)
 
 #### `data-fv-valid="[true/false]"`
 The current validity of the field.
@@ -120,9 +120,9 @@ This can be particularly useful when performing asynchronous validity checks, as
 
 
 
-## User-defined attributes
+# User-defined attributes
 
-### All form controls
+## All form controls
 
 #### `data-fv-validate="[empty or truthy value]"`
 Whether the field should be validated or not.
@@ -167,7 +167,7 @@ The maximum length allowed for the value.
 
 
 
-### Text-based form controls
+## Text-based form controls
 Any form control of the following type is considered a text field:
 
 - `text`
@@ -211,7 +211,7 @@ const fv = new FormValidator(form, {
 
 
 
-### Numeric form controls
+## Numeric form controls
 Any form control of the following type is considered a numeric field:
 
 - `date`
