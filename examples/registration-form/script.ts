@@ -3,7 +3,6 @@ import { FormValidator } from "../../dist";
 /**
  * Get the form and instantiate the FormValidator.
  */
-
 const form = document.querySelector("form")!;
 const fv = new FormValidator(form);
 
