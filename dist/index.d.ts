@@ -109,15 +109,15 @@ declare type FieldElement<TElement extends FormControlElement = FormControlEleme
     dataset: {
         /** The current validity of the field. */
         fvValid?: string;
-        /** Set when the validity of the field is currently being checked. */
+        /** Whether the validity of the field is currently being checked. */
         fvCheckingValidity?: string;
         /** Whether the field should be validated or not. */
         fvValidate?: string;
         /** Whether the field can have a default/empty value. */
         fvRequired?: string;
         /**
-         * Display name for the field.
-         * @note This should be set if this field is the 'match' of another field.
+         * The display name used for the field.
+         * @note If omitted, error messages will appear far more generic.
          */
         fvDisplayName?: string;
         /** The name of the field whose value this one must match. */
@@ -215,9 +215,9 @@ declare class NumericField extends UserEntryField {
 
 /** A numeric form control element. */
 declare type NumericFieldElement = UserEntryFieldElement<HTMLInputElement, "date" | "month" | "week" | "time" | "datetime-local" | "number" | "range", {
-    /** Minimum numeric value. */
+    /** The minimum numeric value the field can have. */
     fvMin?: string;
-    /** Maximum numeric value. */
+    /** The maximum numeric value the field can have. */
     fvMax?: string;
 }>;
 
@@ -297,16 +297,16 @@ declare class TextField extends UserEntryField {
 }
 
 /** A text-based form control element. */
-declare type TextFieldElement = UserEntryFieldElement<HTMLInputElement | HTMLTextAreaElement, "text" | "tel" | "email" | "url" | "password" | "search", {
+declare type TextFieldElement = UserEntryFieldElement<HTMLInputElement | HTMLTextAreaElement, "text" | "tel" | "email" | "url" | "password" | "search" | "textarea", {
     /** The regex pattern the value must match. */
     fvPattern?: string;
-    /** The pattern preset for the string.
-     *
-     * @note This takes priority over the standard pattern if both set.
-     */
-    fvPatternPreset?: string;
     /** The label for the pattern, e.g. postcode, phone number, etc. */
     fvPatternLabel?: string;
+    /**
+     * The regex pattern preset for the field.
+     * @note This takes priority over the standard pattern and pattern label if set.
+     */
+    fvPatternPreset?: string;
 }>;
 
 /** Options for a text-based form field.  */
@@ -345,6 +345,6 @@ declare type UserEntryFieldElement<TElement extends UserEntryFormControlElement 
 /** Any form control that takes a user entry as an input. */
 declare type UserEntryFormControlElement = HTMLInputElement | HTMLTextAreaElement;
 
-declare type UserEntryFormControlElementType = "text" | "tel" | "email" | "url" | "password" | "search" | "date" | "month" | "week" | "time" | "datetime-local" | "number" | "range";
+declare type UserEntryFormControlElementType = "text" | "tel" | "email" | "url" | "password" | "search" | "textarea" | "date" | "month" | "week" | "time" | "datetime-local" | "number" | "range";
 
 export { }

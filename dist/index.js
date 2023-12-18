@@ -292,7 +292,7 @@ const d = class d {
     /** The form element being validated. */
     l(this, "form");
     l(this, "options");
-    this.form = e, this.options = m({}, d.defaultOptions, t), this.loadAllFields();
+    this.form = e, this.form.noValidate = !0, this.options = m({}, d.defaultOptions, t), this.loadAllFields();
   }
   /**
    * Get an instance of a field by it's name.
@@ -355,6 +355,7 @@ const d = class d {
       case "url":
       case "password":
       case "search":
+      case "textarea":
         return new h(e, this.options);
       case "select-one":
       case "select-multiple":

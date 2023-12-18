@@ -34,6 +34,7 @@ export class FormValidator {
 	 */
 	constructor(form: HTMLFormElement, options?: Partial<FormValidatorOptions>) {
 		this.form = form;
+		this.form.noValidate = true; //disable standard form validation
 		this.options = merge({}, FormValidator.defaultOptions, options);
 
 		this.loadAllFields();
@@ -117,6 +118,7 @@ export class FormValidator {
 			case "url":
 			case "password":
 			case "search":
+			case "textarea":
 				return new TextField(elmt as TextFieldElement, this.options);
 
 			case "select-one":

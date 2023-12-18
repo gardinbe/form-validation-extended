@@ -4,17 +4,17 @@ import { UserEntryField, UserEntryFieldElement } from "./abstract/user-entry-fie
 /** A text-based form control element. */
 export type TextFieldElement = UserEntryFieldElement<
 	HTMLInputElement | HTMLTextAreaElement,
-	"text" | "tel" | "email" | "url" | "password" | "search",
+	"text" | "tel" | "email" | "url" | "password" | "search" | "textarea",
 	{
 		/** The regex pattern the value must match. */
 		fvPattern?: string;
-		/** The pattern preset for the string.
-		 * 
-		 * @note This takes priority over the standard pattern if both set.
-		 */
-		fvPatternPreset?: string;
 		/** The label for the pattern, e.g. postcode, phone number, etc. */
 		fvPatternLabel?: string;
+		/** 
+		 * The regex pattern preset for the field.
+		 * @note This takes priority over the standard pattern and pattern label if set.
+		 */
+		fvPatternPreset?: string;
 	}
 >;
 

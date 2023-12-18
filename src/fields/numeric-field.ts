@@ -5,9 +5,9 @@ export type NumericFieldElement = UserEntryFieldElement<
 	HTMLInputElement,
 	"date" | "month" | "week" | "time" | "datetime-local" | "number" | "range",
 	{
-		/** Minimum numeric value. */
+		/** The minimum numeric value the field can have. */
 		fvMin?: string;
-		/** Maximum numeric value. */
+		/** The maximum numeric value the field can have. */
 		fvMax?: string;
 	}
 >;

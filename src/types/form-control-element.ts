@@ -21,6 +21,7 @@ export type UserEntryFormControlElementType =
 	| "url"
 	| "password"
 	| "search"
+	| "textarea"
 	| "date"
 	| "month"
 	| "week"

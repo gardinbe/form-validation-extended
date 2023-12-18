@@ -11,7 +11,7 @@ export type FieldElement<
 	dataset: {
 		/** The current validity of the field. */
 		fvValid?: string;
-		/** Set when the validity of the field is currently being checked. */
+		/** Whether the validity of the field is currently being checked. */
 		fvCheckingValidity?: string;
 
 
@@ -20,8 +20,8 @@ export type FieldElement<
 		/** Whether the field can have a default/empty value. */
 		fvRequired?: string;
 		/**
-		 * Display name for the field.
-		 * @note This should be set if this field is the 'match' of another field.
+		 * The display name used for the field.
+		 * @note If omitted, error messages will appear far more generic.
 		 */
 		fvDisplayName?: string;
 		/** The name of the field whose value this one must match. */
