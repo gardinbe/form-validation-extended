@@ -1,4 +1,7 @@
 {
+	"ignorePatterns": [
+		"dist"
+	],
 	"root": true,
 	"env": {
 		"browser": true,
@@ -9,16 +12,31 @@
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended-requiring-type-checking"
+		"plugin:@typescript-eslint/recommended-requiring-type-checking",
+		"plugin:import/recommended",
+		"plugin:import/typescript"
 	],
 	"plugins": [
-		"@typescript-eslint"
+		"@typescript-eslint",
+		"import"
 	],
 	"parserOptions": {
-		"project": [
-			"tsconfig.json"
-		],
+		"project": "tsconfig.json",
 		"parser": "@typescript-eslint/parser"
+	},
+	"settings": {
+		"import/parsers": {
+			"@typescript-eslint/parser": [
+				".ts",
+				".tsx"
+			]
+		},
+		"import/resolver": {
+			"typescript": {
+				"alwaysTryTypes": true, //always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+				"project": "tsconfig.json"
+			}
+		}
 	},
 	"rules": {
 		"@typescript-eslint/member-delimiter-style": [

@@ -1,11 +1,12 @@
 {
-  "name": "form-validator",
+  "name": "html-form-validator",
   "version": "1.0.0",
   "description": "A utility to validate HTML forms.",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "examples": "vite serve ./examples"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,12 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.56.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "sass": "^1.69.5",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "vite": "^5.0.10",
+    "vite-plugin-dts": "^3.6.4"
   },
   "dependencies": {
     "lodash": "^4.17.21"

@@ -1,0 +1,275 @@
+:root {
+	--primary: #f39aec;
+	--primary-light: #eec4ea;
+	--secondary: #6d5aa5;
+	--inactive: #808080;
+	--error: #d57d7d;
+	--error-bg: #532c2c;
+	--error-bg-dark: #422525;
+	--text: #fff;
+	--bg-1: #111;
+	--bg-2: #222;
+	--bg-3: #555;
+	--anim: 75ms ease-in-out;
+	--anim-slow: 150ms ease-in-out;
+	--radius: 8px;
+}
+
+* {
+	color: var(--text);
+	box-sizing: border-box;
+}
+
+body {
+	margin: unset;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-height: 100%;
+	font-family: Arial;
+	background-color: #3b3b3b;
+	overflow-y: scroll;
+	accent-color: var(--primary);
+}
+
+::selection {
+	background-color: var(--secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: unset;
+	color: var(--primary-light);
+	margin-top: 4px;
+}
+
+h1,
+h2,
+h3 {
+	margin-bottom: 12px;
+}
+
+h4,
+h5,
+h6 {
+	margin-bottom: 8px;
+}
+
+.btn {
+	border: unset;
+	outline: unset;
+	text-decoration: none;
+	border-radius: 32px;
+	background-color: var(--bg-2);
+	padding: 8px 20px;
+	font-size: 1rem;
+	cursor: pointer;
+	user-select: none;
+	transition: background-color var(--anim);
+
+	&:hover,
+	&:focus-within {
+		background-color: var(--bg-3);
+	}
+
+	&:active {
+		background-color: var(--bg-1);
+	}
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	align-items: center;
+	margin: 0 auto;
+	padding: 64px 16px;
+	max-width: 400px;
+}
+
+fieldset {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 16px;
+	padding: 24px;
+	margin: 0 auto;
+	border: 2px solid var(--bg-3);
+	border-radius: var(--radius);
+
+	legend {
+		margin: 0 auto;
+	}
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+
+	label {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-left: auto;
+
+		span {
+			white-space: nowrap;
+		}
+	}
+
+	&--checkbox-radio {
+		label {
+			margin-left: unset;
+		}
+	}
+
+	&__control {
+		width: 200px;
+	}
+
+	&__errors {
+		margin: unset;
+		padding: unset;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		user-select: none;
+
+		li {
+			list-style: none;
+			font-size: 0.8rem;
+			color: var(--error);
+		}
+	}
+}
+
+.field-loader-container {
+	position: relative;
+
+	input[data-fv-checking-validity="true"] ~ .field-loader {
+		opacity: 1;
+	}
+
+	.field-loader {
+		position: absolute;
+		inset: 0 4px 0 auto;
+		height: 100%;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		pointer-events: none;
+
+		opacity: 0;
+		transition: opacity var(--anim-slow);
+
+		@keyframes SpinLoader {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		&::after {
+			content: "";
+			$size: 0.75rem;
+			height: $size;
+			width: $size;
+
+			border-radius: 100%;
+			border-style: solid;
+			border-width: 4px;
+			border-color: var(--primary-light);
+			border-top-color: transparent;
+			backdrop-filter: blur(4px);
+
+			animation: SpinLoader linear infinite 750ms;
+		}
+	}
+}
+
+input,
+textarea,
+select {
+	border: unset;
+	outline: unset;
+	min-width: 0;
+	padding: 6px 12px;
+	background-color: var(--bg-1);
+	border-radius: var(--radius);
+	font-size: 0.9rem;
+	transition:
+		background-color var(--anim),
+		box-shadow var(--anim);
+
+	//hacky override autofill styles
+	&:-webkit-autofill,
+	&:-webkit-autofill:hover,
+	&:-webkit-autofill:focus,
+	&:-webkit-autofill:focus-within,
+	&:-webkit-autofill:active {
+		box-shadow: 0 0 0 40px var(--bg-1) inset !important;
+		transition: background-color 5000s ease-in-out 0s;
+		-webkit-text-fill-color: var(--text) !important;
+	}
+
+	&:focus,
+	&:focus-within {
+		background-color: var(--bg-2);
+	}
+
+	&[data-fv-valid="false"] {
+		background-color: var(--error-bg);
+
+		//override autofill styles
+		&:-webkit-autofill,
+		&:-webkit-autofill:hover,
+		&:-webkit-autofill:focus,
+		&:-webkit-autofill:focus-within,
+		&:-webkit-autofill:active {
+			box-shadow: 0 0 0 100px var(--error-bg-dark) inset !important;
+		}
+
+		&:focus,
+		&:focus-within {
+			background-color: var(--error-bg-dark);
+		}
+	}
+}
+
+input {
+	&[type="checkbox"],
+	&[type="radio"] {
+		width: unset;
+		width: 1rem;
+		height: 1rem;
+		margin: unset;
+	}
+}
+
+input,
+textarea {
+	&:focus::placeholder,
+	&:focus-within::placeholder {
+		color: #bbb;
+	}
+}
+
+select {
+	cursor: pointer;
+
+	/* dont actually use this */
+	&:has(option:checked[selected][value=""]) {
+		color: var(--inactive);
+	}
+}

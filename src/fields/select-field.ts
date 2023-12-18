@@ -1,20 +1,22 @@
-import { Field, FieldControl, FieldOptions } from "./field";
+import { StandardField, StandardFieldElement } from "./abstract/standard-field";
 
-/** A select box/dropdown form control. */
-export type SelectFieldControl = FieldControl<HTMLSelectElement>;
+/** A select box/dropdown form control element. */
+export type SelectFieldElement = StandardFieldElement<
+	HTMLSelectElement,
+	"select-one" | "select-multiple"
+>;
 
 /**
  * A select box/dropdown form field.
  */
-export class SelectField extends Field {
-	override readonly elmt: SelectFieldControl;
+export class SelectField extends StandardField {
+	override readonly elmt: SelectFieldElement;
 
 	/**
-	 * @param elmt The select box/dropdown form control associated with this field.
-	 * @param options Target options
+	 * @param elmt The select box/dropdown form control element associated with this field.
 	 */
-	constructor(elmt: SelectFieldControl, options?: Partial<FieldOptions>) {
-		super(elmt, options);
+	constructor(elmt: SelectFieldElement) {
+		super(elmt);
 		this.elmt = elmt;
 	}
 }

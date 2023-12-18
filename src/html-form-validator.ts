@@ -1,30 +1,31 @@
 import { merge } from "lodash";
 import {
-	Field, FieldControl,
-	FieldOptions,
-	NumericField, NumericFieldControl,
-	RadioCheckboxField, RadioCheckboxFieldControl,
-	SelectField, SelectFieldControl,
-	TextField, TextFieldControl, TextFieldOptions
+	Field, FieldElement,
+	NumericField, NumericFieldElement,
+	RadioCheckboxField, RadioCheckboxFieldElement,
+	SelectField, SelectFieldElement,
+	TextField, TextFieldElement, TextFieldOptions
 } from "./fields";
-import { FormControlElement } from "./form-control-element";
-import { watchAttribute } from "./watch-attribute";
+import { watchAttribute } from "./utils";
 
-type FormValidatorOptions = FieldOptions & TextFieldOptions;
+/** Options for a form validator. */
+type FormValidatorOptions = TextFieldOptions;
 
 /**
  * Handles the validation of form controls/elements.
  */
 export class FormValidator {
-	private static readonly defaultOptions: FormValidatorOptions = {
-		stopValidatingIfRequiredAndEmpty: Field.defaultOptions.stopValidatingIfRequiredAndEmpty,
-		patternPresets: TextField.defaultOptions.patternPresets
-	};
+	private static readonly defaultOptions: FormValidatorOptions = merge(
+		{},
+		TextField.defaultOptions
+	);
 
 	/** List of all of the fields that are being validated. */
-	readonly fields: Field[];
+	readonly fields: Field[] = [];
+
 	/** The form element being validated. */
 	readonly form: HTMLFormElement;
+
 	private readonly options: FormValidatorOptions;
 
 	/**
@@ -34,41 +35,41 @@ export class FormValidator {
 	constructor(form: HTMLFormElement, options?: Partial<FormValidatorOptions>) {
 		this.form = form;
 		this.options = merge({}, FormValidator.defaultOptions, options);
-		this.fields = [];
 
 		this.loadAllFields();
 	}
 
 	/**
-	 * Whether all of the fields within the form are valid.
+	 * Get an instance of a field by it's name.
+	 * @param name Target form control name
+	 * @returns Field instance
 	 */
-	get valid() {
-		return !this.fields.some(field => !field.valid);
+	getField<T extends Field>(name: string) {
+		return this.fields.find(field => field.elmt.name === name) as T ?? null;
 	}
 
 	/**
 	 * Check the validity of all of the fields in the form.
 	 */
-	checkValidity() {
-		for (const field of this.fields)
-			field.checkValidity();
+	async checkValidity() {
+		const results = await Promise.all(this.fields.map(f => f.checkValidity()));
+		return !results.some(result => !result);
 	}
 
 	/**
 	 * Watch the all of the fields and validate them on any changes.
-	 * @param callback Callback function executed on any changes
 	 */
-	watchValueChanges(callback?: (field?: Field) => void) {
+	watchAllFields() {
 		for (const field of this.fields)
-			field.watchValueChanges(() => callback?.(field));
+			field.validateOnChange();
 	}
 
 	/**
 	 * Ignore any changes to the fields.
 	 */
-	ignoreValueChanges() {
+	ignoreAllFields() {
 		for (const field of this.fields)
-			field.ignoreValueChanges();
+			field.stopValidatingOnChange();
 	}
 
 	/**
@@ -76,17 +77,17 @@ export class FormValidator {
 	 * @returns Fields to be validated
 	 */
 	private loadAllFields() {
-		const fieldElmts = Array.from(this.form.elements as HTMLCollectionOf<FormControlElement>)
-			.filter(elmt => elmt.dataset.fvValidate !== undefined);
+		const fieldElmts = Array.from(this.form.elements as HTMLCollectionOf<FieldElement>)
+			.filter(el => el.dataset.fvValidate !== undefined);
 
 		//go through the field controls and upcast them
 		for (const fieldElmt of fieldElmts) {
 			if (
 				//do not add the same field again
-				this.fields.some(field => field.elmt === fieldElmt) ||
+				this.fields.some(f => f.elmt === fieldElmt) ||
 				//and do not add fields with the same name (radio & checkboxes)
 				(fieldElmt.name !== "" &&
-					this.fields.some(field => fieldElmt.name === field.elmt.name))
+					this.fields.some(f => f.elmt.name === fieldElmt.name))
 			)
 				continue;
 
@@ -95,8 +96,8 @@ export class FormValidator {
 		}
 
 		for (const removedField of this.fields
-			.filter(storedField =>
-				!fieldElmts.some(field => storedField.elmt === field))
+			.filter(storedF =>
+				!fieldElmts.some(f => storedF.elmt === f))
 		)
 			this.removeField(removedField);
 
@@ -108,11 +109,23 @@ export class FormValidator {
 	 * @param elmt Target form control
 	 * @returns Form validator field
 	 */
-	createField(elmt: FieldControl) {
+	createField(elmt: FieldElement) {
 		switch (elmt.type) {
+			case "text":
+			case "tel":
+			case "email":
+			case "url":
+			case "password":
+			case "search":
+				return new TextField(elmt as TextFieldElement, this.options);
+
+			case "select-one":
+			case "select-multiple":
+				return new SelectField(elmt as SelectFieldElement);
+
 			case "radio":
 			case "checkbox":
-				return new RadioCheckboxField(elmt as RadioCheckboxFieldControl, this.options);
+				return new RadioCheckboxField(elmt as RadioCheckboxFieldElement);
 
 			case "date":
 			case "month":
@@ -121,21 +134,10 @@ export class FormValidator {
 			case "datetime-local":
 			case "number":
 			case "range":
-				return new NumericField(elmt as NumericFieldControl, this.options);
-
-			case "text":
-			case "tel":
-			case "email":
-			case "url":
-			case "password":
-			case "search":
-				return new TextField(elmt as TextFieldControl, this.options);
-
-			case "select":
-				return new SelectField(elmt as SelectFieldControl, this.options);
+				return new NumericField(elmt as NumericFieldElement);
 
 			default:
-				throw new Error(`Unable to create field with an unknown type '${elmt.type}'`);
+				throw new Error(`Failed to create field using a form control of an unknown type '${elmt.type as string}'`);
 		}
 	}
 
@@ -168,17 +170,17 @@ export class FormValidator {
 	 * @param field Target field
 	 */
 	private setFieldRelations(field: Field) {
-		if (field.elmt.dataset.fvPattern === undefined) {
+		if (field.elmt.dataset.fvMatch === undefined) {
 			field.matchTo = null;
 			return;
 		}
 
 		const matchTo = this.fields
-			.find(field =>
-				field.elmt.name === field.elmt.dataset.fvMatch);
+			.find(existingField =>
+				field.elmt.dataset.fvMatch === existingField.elmt.name);
 
 		if (matchTo === undefined)
-			throw new Error(`Unable to find field '${field.elmt.dataset.fvMatch}' to match with '${field.elmt.name}'`);
+			throw new Error(`Failed to find form control '${field.elmt.dataset.fvMatch}' to match with '${field.elmt.name}'`);
 
 		//set the relationship on both sides (how romantic)
 		field.matchTo = matchTo;

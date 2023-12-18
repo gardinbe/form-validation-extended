@@ -1,49 +1,77 @@
-import { Field, FieldControl, FieldOptions } from "./field";
+import { datasetIsTrue } from "../utils";
+import { Field, FieldElement } from "./abstract/field";
 
-/** A radio or checkbox form control. */
-export type RadioCheckboxFieldControl = FieldControl<HTMLInputElement & {
-	type: "radio" | "checkbox";
-}>;
+/** A radio or checkbox form control element. */
+export type RadioCheckboxFieldElement = FieldElement<
+	HTMLInputElement,
+	"radio" | "checkbox"
+>;
 
 /**
  * A radio button or checkbox form field.
  */
 export class RadioCheckboxField extends Field {
-	override readonly elmt: RadioCheckboxFieldControl;
+	override readonly elmt: RadioCheckboxFieldElement;
 	/** All the other form controls assoicated with this radio/checkbox. */
-	private readonly associatedElmts: RadioCheckboxFieldControl[];
+	private readonly associatedElmts: RadioCheckboxFieldElement[];
 
 	/**
-	 * @param elmt The radio/checkbox form control associated with this field.
-	 * @param options Target options
+	 * @param elmt The radio/checkbox form control element associated with this field.
 	 */
-	constructor(mainElmt: RadioCheckboxFieldControl, options?: Partial<FieldOptions>) {
-		super(mainElmt, options);
+	constructor(mainElmt: RadioCheckboxFieldElement) {
+		super(mainElmt);
 		this.elmt = mainElmt;
-		this.associatedElmts = Array.from(mainElmt.form!.elements as HTMLCollectionOf<RadioCheckboxFieldControl>)
-			.filter(elmt =>
-				elmt.type === mainElmt.type && //double check the type matches
-				elmt.name === mainElmt.name);
+		this.associatedElmts = Array.from(mainElmt.form!.elements as HTMLCollectionOf<RadioCheckboxFieldElement>)
+			.filter(el =>
+				el.type === mainElmt.type && //double check the type matches
+				el.name === mainElmt.name);
+
+		//if required -> is atleast one item checked?
+		this.addInvalidator((_value, invalidate) => {
+			if (
+				this.elmt.dataset.fvRequired !== undefined &&
+				datasetIsTrue(this.elmt.dataset.fvRequired) &&
+				!this.associatedElmts.some(el => el.checked)
+			)
+				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} is required`);
+		});
 	}
 
-	protected override validationChecks() {
-		super.validationChecks();
+	override validate() {
+		super.validate();
 
-		if (this.elmt.dataset.fvRequired && !this.associatedElmts.some(elmt => elmt.checked))
-			this.errors.push("This is required");
-	}
-
-	protected override validate() {
 		for (const elmt of this.associatedElmts)
-			elmt.classList.remove("invalid");
-
-		this.valid = true;
+			elmt.dataset.fvValid = "true";
 	}
 
-	protected override invalidate() {
-		for (const elmt of this.associatedElmts)
-			elmt.classList.add("invalid");
+	override invalidate(reason: string) {
+		super.invalidate(reason);
 
-		this.valid = false;
+		for (const elmt of this.associatedElmts)
+			elmt.dataset.fvValid = "false";
+	}
+
+	override validateOnChange() {
+		super.validateOnChange();
+
+		if (this.valueEventHandler === null)
+			return;
+
+		for (const elmt of this.associatedElmts) {
+			elmt.addEventListener("input", this.valueEventHandler);
+			elmt.addEventListener("change", this.valueEventHandler);
+		}
+	}
+
+	override stopValidatingOnChange() {
+		super.stopValidatingOnChange();
+
+		if (this.valueEventHandler === null)
+			return;
+
+		for (const elmt of this.associatedElmts) {
+			elmt.removeEventListener("input", this.valueEventHandler);
+			elmt.removeEventListener("change", this.valueEventHandler);
+		}
 	}
 }

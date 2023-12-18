@@ -1,0 +1,269 @@
+<html>
+
+<head>
+	<meta
+		name="viewport"
+		content="width=device-width, initial-scale=1"
+	/>
+	<link
+		rel="stylesheet"
+		href="/styles.scss"
+	>
+	<title>HTML form validator demo</title>
+</head>
+
+<body>
+	<form>
+		<fieldset>
+			<legend>
+				<h1>Register</h1>
+			</legend>
+			<div class="field">
+				<label>
+					<span>Username</span>
+					<div class="field-loader-container">
+						<input
+							class="field__control"
+							type="text"
+							name="username"
+							placeholder="Username..."
+							data-fv-validate
+							data-fv-display-name="Username"
+							data-fv-required
+							data-fv-min-length="5"
+							data-fv-pattern="^[a-zA-Z0-9]*$"
+							data-fv-pattern-label="username"
+						>
+						<div class="field-loader"></div>
+					</div>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="username"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Email</span>
+					<input
+						class="field__control"
+						type="email"
+						name="email"
+						placeholder="Email..."
+						data-fv-validate
+						data-fv-display-name="Email"
+						data-fv-required
+						data-fv-pattern-preset="email"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="email"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Name</span>
+					<input
+						class="field__control"
+						type="text"
+						name="name"
+						placeholder="Name..."
+						data-fv-validate
+						data-fv-display-name="Name"
+						data-fv-required
+						data-fv-pattern="^[a-zA-Z\s]+$"
+						data-fv-pattern-label="name"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="name"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Age</span>
+					<input
+						class="field__control"
+						type="number"
+						name="age"
+						placeholder="Age..."
+						min="0"
+						max="100"
+						data-fv-validate
+						data-fv-display-name="Age"
+						data-fv-required
+						data-fv-min="0"
+						data-fv-max="100"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="age"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Phone number</span>
+					<input
+						class="field__control"
+						type="tel"
+						name="phone-number"
+						placeholder="Phone number..."
+						data-fv-validate
+						data-fv-display-name="Phone number"
+						data-fv-required
+						data-fv-pattern-preset="phone-number"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="phone-number"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Password</span>
+					<input
+						class="field__control"
+						type="password"
+						name="password"
+						placeholder="Password..."
+						data-fv-validate
+						data-fv-display-name="Password"
+						data-fv-required
+						data-fv-min-length="6"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="password"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
+					<span>Confirm password</span>
+					<input
+						class="field__control"
+						type="password"
+						name="password-confirmation"
+						placeholder="Confirm password..."
+						data-fv-validate
+						data-fv-display-name="Password confirmation"
+						data-fv-required
+						data-fv-match="password"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="password-confirmation"
+				>
+				</ul>
+			</div>
+			<div class="field field--select">
+				<h4>How did you find out about us?</h4>
+				<label>
+					<span>Source</span>
+					<select
+						class="field__control"
+						name="discovery-source"
+						data-fv-validate
+						data-fv-display-name="Discovery source"
+						data-fv-required
+					>
+						<option
+							disabled
+							selected
+							value=""
+						>Source...</option>
+						<option value="the-web">The web</option>
+						<option value="social-media">Social media</option>
+						<option value="pure-luck">Pure luck</option>
+						<option value="who-knows">Who knows?</option>
+					</select>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="discovery-source"
+				>
+				</ul>
+			</div>
+			<div class="field field--checkbox-radio">
+				<h4>How did you find this experience?</h4>
+				<label>
+					<span>Great</span>
+					<input
+						class="field__control"
+						type="radio"
+						name="experience-review"
+						value="great"
+						data-fv-validate
+						data-fv-display-name="Experience review"
+						data-fv-required
+					>
+				</label>
+				<label>
+					<span>Good</span>
+					<input
+						class="field__control"
+						type="radio"
+						name="experience-review"
+						value="good"
+					>
+				</label>
+				<label>
+					<span>Average</span>
+					<input
+						class="field__control"
+						type="radio"
+						name="experience-review"
+						value="average"
+					>
+				</label>
+				<label>
+					<span>Not great</span>
+					<input
+						class="field__control"
+						type="radio"
+						name="experience-review"
+						value="not-great"
+					>
+				</label>
+				</ul>
+				<label>
+					<span>Terrible</span>
+					<input
+						class="field__control"
+						type="radio"
+						name="experience-review"
+						value="terrible"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="experience-review"
+				>
+				</ul>
+			</div>
+		</fieldset>
+		<button
+			type="submit"
+			class="btn"
+		>
+			Register account
+		</button>
+	</form>
+	<script
+		type="module"
+		src="/registration-form/script.ts"
+	></script>
+</body>
+
+</html>

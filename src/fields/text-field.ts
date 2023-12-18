@@ -1,9 +1,25 @@
 import { merge } from "lodash";
-import { FieldControl, FieldOptions } from "./field";
-import { StandardField } from "./standard-field";
+import { UserEntryField, UserEntryFieldElement } from "./abstract/user-entry-field";
+
+/** A text-based form control element. */
+export type TextFieldElement = UserEntryFieldElement<
+	HTMLInputElement | HTMLTextAreaElement,
+	"text" | "tel" | "email" | "url" | "password" | "search",
+	{
+		/** The regex pattern the value must match. */
+		fvPattern?: string;
+		/** The pattern preset for the string.
+		 * 
+		 * @note This takes priority over the standard pattern if both set.
+		 */
+		fvPatternPreset?: string;
+		/** The label for the pattern, e.g. postcode, phone number, etc. */
+		fvPatternLabel?: string;
+	}
+>;
 
 /** Options for a text-based form field.  */
-export type TextFieldOptions = FieldOptions & {
+export type TextFieldOptions = {
 	/** Object of pattern presets used to test common field types. */
 	patternPresets: TextFieldPatternPresets;
 };
@@ -16,27 +32,11 @@ type TextFieldPatternPresets = {
 	phoneNumber: RegExp;
 };
 
-/** A text-based form control. */
-export type TextFieldControl = FieldControl<HTMLInputElement & {
-	type: "text" | "tel" | "email" | "url" | "password" | "search";
-}, {
-	/** The regex pattern the value must match. */
-	fvPattern?: string;
-	/** The pattern preset for the string.
-	 * 
-	 * @note This takes priority over the standard pattern if both set.
-	 */
-	fvPatternPreset?: string;
-	/** The label for the pattern, e.g. postcode, phone number, etc. */
-	fvPatternLabel?: string;
-}>;
-
 /**
  * A text-based form field.
  */
-export class TextField extends StandardField {
-	static override readonly defaultOptions: TextFieldOptions = {
-		...super.defaultOptions,
+export class TextField extends UserEntryField {
+	static readonly defaultOptions: TextFieldOptions = {
 		patternPresets: {
 			// see this page: https://stackoverflow.com/a/201378
 			// eslint-disable-next-line no-control-regex
@@ -45,43 +45,42 @@ export class TextField extends StandardField {
 		}
 	};
 
-	override readonly elmt: TextFieldControl;
-	protected override readonly options: TextFieldOptions;
+	override readonly elmt: TextFieldElement;
+	protected readonly options: TextFieldOptions;
 
 	/**
-	 * @param elmt The text-based form control associated with this field.
+	 * @param elmt The text-based form control element associated with this field.
 	 * @param options Target options
 	 */
-	constructor(elmt: TextFieldControl, options?: Partial<TextFieldOptions>) {
-		super(elmt, options);
+	constructor(elmt: TextFieldElement, options?: Partial<TextFieldOptions>) {
+		super(elmt);
 		this.elmt = elmt;
 		this.options = merge({}, TextField.defaultOptions, options);
-	}
 
-	protected override validationChecks() {
-		super.validationChecks();
+		//check regex pattern
+		this.addInvalidator((value, invalidate) => {
+			const pattern = this.getPatternRegExp();
 
-		const pattern = this.getPatternRegExp();
+			if (pattern !== null && this.elmt.dataset.fvPatternPreset !== undefined)
+				console.warn(`Form control '${this.elmt.name}' has both a custom pattern 'data-fv-pattern' and preset pattern 'data-fv-pattern-preset' set. The custom pattern is being ignored.`);
 
-		if (pattern !== null && this.elmt.dataset.fvPatternPreset !== undefined)
-			console.warn(`Form control '${this.elmt.name}' has both a custom pattern 'data-fv-pattern' and preset pattern 'data-fv-pattern-preset' set. The custom pattern is being ignored.`);
+			//check custom pattern only if no preset is set
+			if (this.elmt.dataset.fvPatternPreset !== undefined) {
+				if (
+					this.elmt.dataset.fvPatternPreset === "email" &&
+					!this.options.patternPresets.email.test(value)
+				)
+					invalidate("This is not a valid email");
 
-		//check custom pattern only if no preset is set
-		if (this.elmt.dataset.fvPatternPreset !== undefined) {
-			if (
-				this.elmt.dataset.fvPatternPreset === "email" &&
-				!this.options.patternPresets.email.test(this.elmt.value)
-			)
-				this.errors.push("This is not a valid email address");
+				if (
+					this.elmt.dataset.fvPatternPreset === "phone-number" &&
+					!this.options.patternPresets.phoneNumber.test(value)
+				)
+					invalidate("This is not a valid phone number");
 
-			if (
-				this.elmt.dataset.fvPatternPreset === "phone-number" &&
-				!this.options.patternPresets.phoneNumber.test(this.elmt.value)
-			)
-				this.errors.push("This is not a valid phone number");
-
-		} else if (pattern !== null && !pattern.test(this.elmt.value))
-			this.errors.push(`This is not a valid ${this.elmt.dataset.fvPatternLabel ?? "value"}`);
+			} else if (pattern !== null && !pattern.test(value))
+				invalidate(`This is not a valid ${this.elmt.dataset.fvPatternLabel ?? "value"}`);
+		});
 	}
 
 	/**

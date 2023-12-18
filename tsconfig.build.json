@@ -31,8 +31,12 @@
 		"moduleResolution": "Bundler",
 		"allowSyntheticDefaultImports": true,
 		"noEmit": true,
-		"rootDir": "."
+		"rootDir": "./src",
+		"outDir": "./dist"
 	},
+	"include": [
+		"./src/**/*"
+	],
 	"exclude": [
 		"./node_modules"
 	]
