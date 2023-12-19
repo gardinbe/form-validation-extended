@@ -1,5 +1,4 @@
-
-# HTML Form Validator
+# form-validation-extended
 
 A replacement to and an extension of standard HTML form validation.
 

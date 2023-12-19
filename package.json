@@ -1,27 +1,37 @@
 {
-  "name": "html-form-validator",
+  "author": "Ben Gardiner",
+  "license": "MIT",
+  "name": "form-validation-extended",
   "version": "1.0.0",
   "description": "A utility to validate HTML forms.",
-  "main": "index.js",
   "type": "module",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "vite build",
     "examples": "vite serve ./examples"
   },
+  "files": [
+    "dist",
+    "readme.md",
+    "license"
+  ],
+  "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gardinbe/html-form-validator"
+    "url": "https://github.com/gardinbe/form-validation-extended"
   },
   "keywords": [
-    "Validation",
-    "HTML",
-    "Forms",
-    "Forms",
-    "Form",
-    "validation"
+    "validator",
+    "validation",
+    "form validator",
+    "form validation",
+    "html form validator",
+    "html form validation",
+    "web form validator",
+    "web form validation",
+    "input validation",
+    "input validator"
   ],
-  "author": "Ben Gardiner",
-  "license": "ISC",
   "devDependencies": {
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.4",
