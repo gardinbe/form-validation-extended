@@ -16,7 +16,7 @@ export class RadioCheckboxField extends Field {
 	private readonly associatedElmts: RadioCheckboxFieldElement[];
 
 	/**
-	 * @param elmt The radio/checkbox form control element associated with this field.
+	 * @param mainElmt - The radio/checkbox form control element associated with this field.
 	 */
 	constructor(mainElmt: RadioCheckboxFieldElement) {
 		super(mainElmt);

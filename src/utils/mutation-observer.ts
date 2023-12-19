@@ -1,8 +1,8 @@
 /**
  * Watch an element's attribute for changes. Executes callback on change.
- * @param target Target element
- * @param attributes Target attribute(s)
- * @param callback Callback function
+ * @param target - Target element
+ * @param attributes - Target attribute(s)
+ * @param callback - Callback function
  */
 export const watchAttributes = (
 	target: Element,
@@ -21,8 +21,8 @@ export const watchAttributes = (
 
 /**
  * Watch an element's children for changes. Executes callback on change.
- * @param target Target element
- * @param callback Callback function
+ * @param target - Target element
+ * @param callback - Callback function
  */
 export const watchChildren = (
 	target: Element,

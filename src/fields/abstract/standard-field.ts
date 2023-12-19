@@ -20,7 +20,7 @@ export abstract class StandardField extends Field {
 	override readonly elmt: StandardFieldElement;
 
 	/**
-	 * @param elmt The form control element associated with this field.
+	 * @param elmt - The form control element associated with this field.
 	 */
 	constructor(elmt: StandardFieldElement) {
 		super(elmt);

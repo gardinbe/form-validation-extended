@@ -13,7 +13,7 @@ export class SelectField extends StandardField {
 	override readonly elmt: SelectFieldElement;
 
 	/**
-	 * @param elmt The select box/dropdown form control element associated with this field.
+	 * @param elmt - The select box/dropdown form control element associated with this field.
 	 */
 	constructor(elmt: SelectFieldElement) {
 		super(elmt);

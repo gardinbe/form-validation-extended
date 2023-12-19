@@ -12,7 +12,8 @@ export type TextFieldElement = UserEntryFieldElement<
 		fvPatternLabel?: string;
 		/** 
 		 * The regex pattern preset for the field.
-		 * @note This takes priority over the standard pattern and pattern label if set.
+		 * 
+		 * This takes priority over the standard pattern and pattern label if set.
 		 */
 		fvPatternPreset?: string;
 	}
@@ -49,8 +50,8 @@ export class TextField extends UserEntryField {
 	protected readonly options: TextFieldOptions<TextFieldDefaultPatternPresets>;
 
 	/**
-	 * @param elmt The text-based form control element associated with this field.
-	 * @param options Target options
+	 * @param elmt - The text-based form control element associated with this field.
+	 * @param options - Target options
 	 */
 	constructor(elmt: TextFieldElement, options?: Partial<TextFieldOptions>) {
 		super(elmt);

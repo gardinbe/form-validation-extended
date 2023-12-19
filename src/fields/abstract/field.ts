@@ -21,7 +21,8 @@ export type FieldElement<
 		fvRequired?: string;
 		/**
 		 * The display name used for the field.
-		 * @note If omitted, error messages will appear far more generic.
+		 * 
+		 * If omitted, error messages will appear far more generic.
 		 */
 		fvDisplayName?: string;
 		/** The name of the field whose value this one must match. */
@@ -47,7 +48,7 @@ type AddFieldInvalidationCheckOptions = {
 	 * 
 	 * If the field value changes again before the time is up, the invalidation check will be cancelled.
 	 * 
-	 * @default undefined
+	 * @defaultValue undefined
 	 */
 	debounce?: number;
 	/**
@@ -60,7 +61,7 @@ type AddFieldInvalidationCheckOptions = {
 	 * `"after-other-checks-passed"` - Execute this check after all of the other checks have executed **and passed**.
 	 * Bear in mind that *'other checks'* in this case means all other checks that are not `"after-other-checks-passed"` ones.
 	 * 
-	 * @default "with-other-checks"
+	 * @defaultValue "with-other-checks"
 	 */
 	when: FieldInvalidatorWhen;
 };
@@ -96,7 +97,7 @@ export abstract class Field {
 	protected eventHandler: ((this: void, ev: Event) => void) | null = null;
 
 	/**
-	 * @param elmt The form control element associated with this field.
+	 * @param elmt - The form control element associated with this field.
 	 */
 	constructor(elmt: FieldElement) {
 		this.elmt = elmt;
@@ -162,7 +163,7 @@ export abstract class Field {
 		/**
 		 * Filter the invalidators by `when` they should execute, create their instances, and
 		 * return those instances.
-		 * @param when Filter invalidators by `when` they should execute
+		 * @param when - Filter invalidators by `when` they should execute
 		 */
 		const setAndGetInstances = (when: FieldInvalidatorWhen) =>
 			this.invalidators
@@ -196,8 +197,8 @@ export abstract class Field {
 
 	/**
 	 * Add an additional invalidation check to the field.
-	 * @param invalidator Invalidation check function. Call `invalidate` with a reason to invalidate the field.
-	 * @param options Options
+	 * @param invalidator - Invalidation check function. Call `invalidate` with a reason to invalidate the field.
+	 * @param options - Options
 	 */
 	addInvalidator(invalidator: RawFieldInvalidator, options?: Partial<AddFieldInvalidationCheckOptions>) {
 		const transformedInvalidator: FieldInvalidator = {
@@ -244,7 +245,7 @@ export abstract class Field {
 
 	/**
 	 * Invalidate the field. If invalidated multiple times, reasons will be accumulated.
-	 * @param reason Reason for invalidation
+	 * @param reason - Reason for invalidation
 	 */
 	protected invalidate(reason?: string) {
 		if (reason !== undefined) {
@@ -264,7 +265,7 @@ export abstract class Field {
 
 	/**
 	 * Watch the field's specified attributes and check it's validity if they change.
-	 * @param attributes Target attributes
+	 * @param attributes - Target attributes
 	 */
 	protected checkOnAttributesChange(attributes: string | string[]) {
 		watchAttributes(
