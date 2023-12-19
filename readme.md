@@ -21,9 +21,9 @@ A replacement to and an extension of standard HTML form validation.
 			type="text"
 			name="username"
 			placeholder="Username..."
-			data-fv-validate                    <== Enable validation for this field
-			data-fv-display-name="Username"     <== Set the display name used on error messages
-			data-fv-min-length="4"              <== The minimum length the username can be
+			data-fv-validate					<== Enable validation for this field
+			data-fv-display-name="Username"		<== Set the display name used on error messages
+			data-fv-min-length="4"				<== The minimum length the username can be
 			data-fv-pattern="^[a-zA-Z0-9]*$"	<== Can only contains letters and numbers
 			data-fv-pattern-label="username"	<== Label the pattern (for pattern-related error messages)
 		>
@@ -37,7 +37,7 @@ A replacement to and an extension of standard HTML form validation.
 			data-fv-validate
 			data-fv-display-name="Email"
 			data-fv-required
-			data-fv-pattern-preset="email"      <== Use the email regex pattern preset
+			data-fv-pattern-preset="email"		<== Use the email regex pattern preset
 		>
 	</label>
 	<label>
@@ -49,7 +49,7 @@ A replacement to and an extension of standard HTML form validation.
 			data-fv-validate
 			data-fv-display-name="Email confirmation"
 			data-fv-required
-			data-fv-match="email"               <== Value must match to the `email` field
+			data-fv-match="email"				<== Value must match to the `email` field
 		>
 	</label>
 </form>
