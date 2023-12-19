@@ -15,8 +15,8 @@ export default defineConfig({
 		outDir: path("dist"),
 		lib: {
 			formats: ["es", "cjs", "umd"],
-			entry: path("src/html-form-validator.ts"),
-			name: "html-form-validator",
+			entry: path("src/form-validator.ts"),
+			name: "form-validation-extended",
 			fileName: "index"
 		},
 		rollupOptions: {
