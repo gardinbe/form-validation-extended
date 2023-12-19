@@ -18,7 +18,8 @@
 	],
 	"plugins": [
 		"@typescript-eslint",
-		"import"
+		"import",
+		"eslint-plugin-tsdoc"
 	],
 	"parserOptions": {
 		"project": "tsconfig.json",
@@ -39,6 +40,7 @@
 		}
 	},
 	"rules": {
+		"tsdoc/syntax": "warn",
 		"@typescript-eslint/member-delimiter-style": [
 			"error",
 			{

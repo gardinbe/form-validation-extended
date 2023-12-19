@@ -19,7 +19,7 @@ export class NumericField extends UserEntryField {
 	override readonly elmt: NumericFieldElement;
 
 	/**
-	 * @param elmt The numeric form control element associated with this field.
+	 * @param elmt - The numeric form control element associated with this field.
 	 */
 	constructor(elmt: NumericFieldElement) {
 		super(elmt);

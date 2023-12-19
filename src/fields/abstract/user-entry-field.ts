@@ -20,7 +20,7 @@ export abstract class UserEntryField extends StandardField {
 	override readonly elmt: UserEntryFieldElement;
 
 	/**
-	 * @param elmt The form control element associated with this field.
+	 * @param elmt - The form control element associated with this field.
 	 */
 	constructor(elmt: UserEntryFieldElement) {
 		super(elmt);

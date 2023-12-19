@@ -1,6 +1,6 @@
 /**
  * Check whether a dataset item is truthy or not.
- * @param datasetItem Target dataset item
+ * @param datasetItem - Target dataset item
  * @returns true/false
  */
 export const datasetIsTrue = (datasetItem: string | undefined) =>

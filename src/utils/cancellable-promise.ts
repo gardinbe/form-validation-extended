@@ -1,6 +1,6 @@
+//TODO -> this implementation seems very wrong... Come back to later!
 /**
  * A promise that can be cancelled using an `AbortController`.
- * @todo This implementation seems very wrong... Come back to later!
  */
 export class CancellablePromise<T> extends Promise<T> {
 	private abortController: AbortController;

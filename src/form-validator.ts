@@ -31,8 +31,8 @@ export class FormValidator {
 	private readonly options: FormValidatorOptions;
 
 	/**
-	 * @param form Target form element
-	 * @param options Options
+	 * @param form - Target form element
+	 * @param options - Options
 	 */
 	constructor(form: HTMLFormElement, options?: Partial<FormValidatorOptions>) {
 		this.form = form;
@@ -46,7 +46,7 @@ export class FormValidator {
 
 	/**
 	 * Get an instance of a field by it's name.
-	 * @param name Target form control name
+	 * @param name - Target form control name
 	 * @returns Field instance
 	 */
 	getField<T extends Field>(name: string) {
@@ -55,6 +55,7 @@ export class FormValidator {
 
 	/**
 	 * Check the validity of all of the fields in the form.
+	 * @returns determined validity of the form
 	 */
 	async checkValidity() {
 		const results = await Promise.all(this.fields.map(f => f.checkValidity()));
@@ -116,7 +117,7 @@ export class FormValidator {
 
 	/**
 	 * Create a form validator field for a form control.
-	 * @param elmt Target form control
+	 * @param elmt - Target form control
 	 * @returns Form validator field
 	 * @throws Error if form control type is invalid or unknown
 	 */
@@ -155,7 +156,7 @@ export class FormValidator {
 
 	/**
 	 * Add a field to the form validator.
-	 * @param elmt Target field
+	 * @param field - Target field
 	 */
 	addField(field: Field) {
 		//if the type changes, delete the old field an re-instatiate a new one
@@ -173,7 +174,7 @@ export class FormValidator {
 
 	/**
 	 * Remove a field from the form validator.
-	 * @param elmt Target field
+	 * @param field - Target field
 	 */
 	removeField(field: Field) {
 		this.fields.splice(this.fields.indexOf(field), 1);
@@ -189,7 +190,7 @@ export class FormValidator {
 
 	/**
 	 * Set the relations for a single field: the `match` property.
-	 * @param field Target field
+	 * @param field -Target field
 	 */
 	private setFieldRelations(field: Field) {
 		if (field.elmt.dataset.fvMatch === undefined) {
@@ -215,7 +216,7 @@ export class FormValidator {
 			() => field.elmt.dataset.fvMatch = matchTo.elmt.name
 		);
 
-		//when the fields 'match' property changes, update the relations again
+		//when the field's 'match' property changes, update the relations again
 		watchAttributes(
 			field.elmt,
 			"data-fv-match",
