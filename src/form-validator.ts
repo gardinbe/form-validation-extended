@@ -4,12 +4,14 @@ import {
 	NumericField, NumericFieldElement,
 	RadioCheckboxField, RadioCheckboxFieldElement,
 	SelectField, SelectFieldElement,
-	TextField, TextFieldElement, TextFieldOptions
+	TextField, TextFieldElement
 } from "./fields";
-import { watchAttribute } from "./utils";
+import { watchAttributes, watchChildren } from "./utils";
 
 /** Options for a form validator. */
-type FormValidatorOptions = TextFieldOptions;
+type FormValidatorOptions = {
+	patternPresets: Record<string, RegExp>;
+};
 
 /**
  * Handles the validation of form controls/elements.
@@ -37,7 +39,9 @@ export class FormValidator {
 		this.form.noValidate = true; //disable standard form validation
 		this.options = merge({}, FormValidator.defaultOptions, options);
 
-		this.loadAllFields();
+		this.updateFields();
+
+		watchChildren(this.form, () => this.updateFields());
 	}
 
 	/**
@@ -62,7 +66,7 @@ export class FormValidator {
 	 */
 	watchAllFields() {
 		for (const field of this.fields)
-			field.validateOnChange();
+			field.checkOnChange();
 	}
 
 	/**
@@ -70,25 +74,29 @@ export class FormValidator {
 	 */
 	ignoreAllFields() {
 		for (const field of this.fields)
-			field.stopValidatingOnChange();
+			field.stopCheckingOnChange();
 	}
 
 	/**
-	 * Get and set all fields to be validated into the form validator.
-	 * @returns Fields to be validated
+	 * Creates and adds new fields and removes old fields no longer being used. This occurs without
+	 * affecting the other existing fields.
 	 */
-	private loadAllFields() {
+	private updateFields() {
 		const fieldElmts = Array.from(this.form.elements as HTMLCollectionOf<FieldElement>)
-			.filter(el => el.dataset.fvValidate !== undefined);
+			//filter out the others: https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/elements#value
+			.filter(el => el instanceof HTMLInputElement
+				|| el instanceof HTMLTextAreaElement
+				|| el instanceof HTMLSelectElement);
 
-		//go through the field controls and upcast them
+		//go through the active form controls and create fields for any which
+		//dont have a field associated with it
 		for (const fieldElmt of fieldElmts) {
 			if (
 				//do not add the same field again
-				this.fields.some(f => f.elmt === fieldElmt) ||
+				this.fields.some(f => f.elmt === fieldElmt)
 				//and do not add fields with the same name (radio & checkboxes)
-				(fieldElmt.name !== "" &&
-					this.fields.some(f => f.elmt.name === fieldElmt.name))
+				|| (fieldElmt.name !== ""
+					&& this.fields.some(f => f.elmt.name === fieldElmt.name))
 			)
 				continue;
 
@@ -96,11 +104,12 @@ export class FormValidator {
 			this.addField(field);
 		}
 
-		for (const removedField of this.fields
+		//remove old fields that dont have an active form control associated with it
+		for (const oldField of this.fields
 			.filter(storedF =>
 				!fieldElmts.some(f => storedF.elmt === f))
 		)
-			this.removeField(removedField);
+			this.removeField(oldField);
 
 		this.setFieldsRelations();
 	}
@@ -109,6 +118,7 @@ export class FormValidator {
 	 * Create a form validator field for a form control.
 	 * @param elmt Target form control
 	 * @returns Form validator field
+	 * @throws Error if form control type is invalid or unknown
 	 */
 	createField(elmt: FieldElement) {
 		switch (elmt.type) {
@@ -139,7 +149,7 @@ export class FormValidator {
 				return new NumericField(elmt as NumericFieldElement);
 
 			default:
-				throw new Error(`Failed to create field using a form control of an unknown type '${elmt.type as string}'`);
+				throw new Error(`Failed to create field using a form control of an invalid type '${elmt.type as string}'`);
 		}
 	}
 
@@ -148,6 +158,16 @@ export class FormValidator {
 	 * @param elmt Target field
 	 */
 	addField(field: Field) {
+		//if the type changes, delete the old field an re-instatiate a new one
+		watchAttributes(
+			field.elmt,
+			"type",
+			() => {
+				this.removeField(field);
+				this.addField(this.createField(field.elmt));
+			}
+		);
+
 		this.fields.push(field);
 	}
 
@@ -189,14 +209,14 @@ export class FormValidator {
 		matchTo.matchOf.push(field);
 
 		//when the match-field's name changes, change the fields 'match-field' property to target new name
-		watchAttribute(
+		watchAttributes(
 			matchTo.elmt,
 			"name",
 			() => field.elmt.dataset.fvMatch = matchTo.elmt.name
 		);
 
 		//when the fields 'match' property changes, update the relations again
-		watchAttribute(
+		watchAttributes(
 			field.elmt,
 			"data-fv-match",
 			() => {

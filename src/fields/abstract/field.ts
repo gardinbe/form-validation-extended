@@ -1,5 +1,5 @@
 import { FormControlElement, FormControlElementType } from "../../types/form-control-element";
-import { CancellablePromise, datasetIsTrue, delay } from "../../utils";
+import { CancellablePromise, datasetIsTrue, delay, watchAttributes } from "../../utils";
 
 /** Base form control element that all other form control elements inherit. */
 export type FieldElement<
@@ -110,11 +110,19 @@ export abstract class Field {
 		this.errorsListElmt = document
 			.querySelector<HTMLUListElement>(`[data-fv-errors="${elmt.name}"]`);
 
+		this.checkOnAttributesChange([
+			"disabled",
+			"data-fv-validate",
+			"data-fv-required",
+			"data-fv-display-name",
+			"data-fv-match"
+		]);
+
 		this.addInvalidator((value, invalidate) => {
 			if (
-				this.matchTo !== null &&
-				(value !== this.matchTo.elmt.value ||
-					(value === "" && datasetIsTrue(this.matchTo.elmt.dataset.fvRequired)))
+				this.matchTo !== null
+				&& (value !== this.matchTo.elmt.value
+					|| (value === "" && datasetIsTrue(this.matchTo.elmt.dataset.fvRequired)))
 			) {
 				invalidate(
 					this.matchTo.elmt.dataset.fvDisplayName !== undefined
@@ -129,12 +137,20 @@ export abstract class Field {
 	 * Check the validity of the field's value.
 	 */
 	async checkValidity() {
+		//assume valid until invalidated
+		this.validate();
+
+		if (this.elmt.disabled || !datasetIsTrue(this.elmt.dataset.fvValidate))
+			return true;
+
 		this.elmt.dataset.fvCheckingValidity = "true";
 
 		try {
-			await this.runInvalidationChecks().catch(() => { });
+			await this.runInvalidationChecks();
 		} catch (e) {
-			return;
+			//if cancelled, invalidate
+			this.invalidate();
+			return false;
 		}
 
 		this.elmt.dataset.fvCheckingValidity = "false";
@@ -149,9 +165,6 @@ export abstract class Field {
 	 * Run all of the validation checks to determine the field's validity.
 	 */
 	private async runInvalidationChecks() {
-		//assume valid until invalidated
-		this.validate();
-
 		/**
 		 * Filter the invalidators by `when` they should execute, create their instances, and
 		 * return those instances.
@@ -242,13 +255,15 @@ export abstract class Field {
 	 * Invalidate the field. If invalidated multiple times, reasons will be accumulated.
 	 * @param reason Reason for invalidation
 	 */
-	protected invalidate(reason: string) {
-		this.errors.push(reason);
+	protected invalidate(reason?: string) {
+		if (reason !== undefined) {
+			this.errors.push(reason);
 
-		if (this.errorsListElmt !== null) {
-			const li = document.createElement("li");
-			li.textContent = reason;
-			this.errorsListElmt.appendChild(li);
+			if (this.errorsListElmt !== null) {
+				const li = document.createElement("li");
+				li.textContent = reason;
+				this.errorsListElmt.appendChild(li);
+			}
 		}
 
 		this.elmt.dataset.fvValid = "false";
@@ -257,18 +272,22 @@ export abstract class Field {
 	}
 
 	/**
-	 * Create the initial dataset properties.
+	 * Watch the field's attributes and check it's validity if they change.
+	 * @param attributes Target attributes
 	 */
-	protected initDataset() {
-		this.elmt.dataset.fvValid = `${this.valid}`;
-		this.elmt.dataset.fvCheckingValidity = "false";
+	protected checkOnAttributesChange(attributes: string | string[]) {
+		watchAttributes(
+			this.elmt,
+			attributes,
+			() => void this.checkValidity()
+		);
 	}
 
 	/**
-	 * Watch the field's value and validate it on any changes.
+	 * Watch the field's value and check it's validity on any changes.
 	 * @param callback Callback function executed after validity checks
 	 */
-	validateOnChange() {
+	checkOnChange() {
 		if (this.valueEventHandler !== null)
 			return;
 
@@ -281,14 +300,21 @@ export abstract class Field {
 	}
 
 	/**
-	 * Ignore any changes to the field's value. This removes all attached event
-	 * listeners!
+	 * Stop checking the field's validity on any changes.
 	 */
-	stopValidatingOnChange() {
+	stopCheckingOnChange() {
 		if (this.valueEventHandler === null)
 			return;
 
 		this.elmt.removeEventListener("input", this.valueEventHandler);
 		this.elmt.removeEventListener("change", this.valueEventHandler);
+	}
+
+	/**
+	 * Create the initial dataset properties.
+	 */
+	protected initDataset() {
+		this.elmt.dataset.fvValid = `${this.valid}`;
+		this.elmt.dataset.fvCheckingValidity = "false";
 	}
 }

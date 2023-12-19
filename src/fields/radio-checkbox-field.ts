@@ -23,15 +23,15 @@ export class RadioCheckboxField extends Field {
 		this.elmt = mainElmt;
 		this.associatedElmts = Array.from(mainElmt.form!.elements as HTMLCollectionOf<RadioCheckboxFieldElement>)
 			.filter(el =>
-				el.type === mainElmt.type && //double check the type matches
-				el.name === mainElmt.name);
+				el.type === mainElmt.type //double check the type matches
+				&& el.name === mainElmt.name);
 
 		//if required -> is atleast one item checked?
 		this.addInvalidator((_value, invalidate) => {
 			if (
-				this.elmt.dataset.fvRequired !== undefined &&
-				datasetIsTrue(this.elmt.dataset.fvRequired) &&
-				!this.associatedElmts.some(el => el.checked)
+				this.elmt.dataset.fvRequired !== undefined
+				&& datasetIsTrue(this.elmt.dataset.fvRequired)
+				&& !this.associatedElmts.some(el => el.checked)
 			)
 				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} is required`);
 		});
@@ -51,8 +51,8 @@ export class RadioCheckboxField extends Field {
 			elmt.dataset.fvValid = "false";
 	}
 
-	override validateOnChange() {
-		super.validateOnChange();
+	override checkOnChange() {
+		super.checkOnChange();
 
 		if (this.valueEventHandler === null)
 			return;
@@ -63,8 +63,8 @@ export class RadioCheckboxField extends Field {
 		}
 	}
 
-	override stopValidatingOnChange() {
-		super.stopValidatingOnChange();
+	override stopCheckingOnChange() {
+		super.stopCheckingOnChange();
 
 		if (this.valueEventHandler === null)
 			return;

@@ -1,4 +1,4 @@
-import { FormValidator } from "../../dist";
+import { FormValidator } from "../../src/form-validator";
 
 /*
  * Get the form and instantiate the FormValidator.
@@ -22,7 +22,7 @@ fv.watchAllFields();
 
 
 /*
- * Perform any additional custom validation checks if you need to
+ * Perform any additional custom validity checks if you need to
  */
 const usernameField = fv.getField("username")!;
 usernameField.addInvalidator(

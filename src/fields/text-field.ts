@@ -19,13 +19,13 @@ export type TextFieldElement = UserEntryFieldElement<
 >;
 
 /** Options for a text-based form field.  */
-export type TextFieldOptions = {
+export type TextFieldOptions<T extends Record<string, RegExp> = Record<string, RegExp>> = {
 	/** Object of pattern presets used to test common field types. */
-	patternPresets: TextFieldPatternPresets;
+	patternPresets: T;
 };
 
-/** Pattern presets used to test common field types. */
-type TextFieldPatternPresets = {
+/** Default presets used to test common field types. */
+type TextFieldDefaultPatternPresets = {
 	/** Email testing regex pattern. */
 	email: RegExp;
 	/** Phone number testing regex pattern. */
@@ -36,7 +36,7 @@ type TextFieldPatternPresets = {
  * A text-based form field.
  */
 export class TextField extends UserEntryField {
-	static readonly defaultOptions: TextFieldOptions = {
+	static readonly defaultOptions: TextFieldOptions<TextFieldDefaultPatternPresets> = {
 		patternPresets: {
 			// see this page: https://stackoverflow.com/a/201378
 			// eslint-disable-next-line no-control-regex
@@ -46,7 +46,7 @@ export class TextField extends UserEntryField {
 	};
 
 	override readonly elmt: TextFieldElement;
-	protected readonly options: TextFieldOptions;
+	protected readonly options: TextFieldOptions<TextFieldDefaultPatternPresets>;
 
 	/**
 	 * @param elmt The text-based form control element associated with this field.
@@ -56,6 +56,12 @@ export class TextField extends UserEntryField {
 		super(elmt);
 		this.elmt = elmt;
 		this.options = merge({}, TextField.defaultOptions, options);
+
+		this.checkOnAttributesChange([
+			"data-fv-pattern",
+			"data-fv-pattern-label",
+			"data-fv-pattern-preset"
+		]);
 
 		//check regex pattern
 		this.addInvalidator((value, invalidate) => {
@@ -67,14 +73,14 @@ export class TextField extends UserEntryField {
 			//check custom pattern only if no preset is set
 			if (this.elmt.dataset.fvPatternPreset !== undefined) {
 				if (
-					this.elmt.dataset.fvPatternPreset === "email" &&
-					!this.options.patternPresets.email.test(value)
+					this.elmt.dataset.fvPatternPreset === "email"
+					&& !this.options.patternPresets.email.test(value)
 				)
 					invalidate("This is not a valid email");
 
 				if (
-					this.elmt.dataset.fvPatternPreset === "phone-number" &&
-					!this.options.patternPresets.phoneNumber.test(value)
+					this.elmt.dataset.fvPatternPreset === "phone-number"
+					&& !this.options.patternPresets.phoneNumber.test(value)
 				)
 					invalidate("This is not a valid phone number");
 

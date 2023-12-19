@@ -2,7 +2,11 @@
 
 A replacement to and an extension of standard HTML form validation.
 
-Validation rules are specified entirely within the form control elements themselves, not within JS. This means that - unlike many of the alternatives to this - you can build entire forms without writing any JS at all.
+**Validation rules are specified as attributes on the form control elements themselves**: forms can be built very rapidly without having to write any JS at all.
+
+**You can define your own custom validity checks to be executed alongside the other validity checks**: perhaps you need to communicate with an API to determine the validity of the value... you can achieve that with this. An example of this is below.
+
+**Dynamic forms are supported**: *every* change, addition or removal of a form control is immediately recognised and reflected.
 
 
 
@@ -17,11 +21,11 @@ Validation rules are specified entirely within the form control elements themsel
             type="text"
             name="username"
             placeholder="Username..."
-            data-fv-validate                    <-- Enable validation for this field
-            data-fv-display-name="Username"     <-- Set the display name used on error messages
-            data-fv-min-length="4"              <-- The minimum length the username can be
-            data-fv-pattern="^[a-zA-Z0-9]*$"    <-- Can only contains letters and numbers
-            data-fv-pattern-label="username"    <-- Label the pattern (for pattern-related error messages)
+            data-fv-validate                    <== Enable validation for this field
+            data-fv-display-name="Username"     <== Set the display name used on error messages
+            data-fv-min-length="4"              <== The minimum length the username can be
+            data-fv-pattern="^[a-zA-Z0-9]*$"    <== Can only contains letters and numbers
+            data-fv-pattern-label="username"    <== Label the pattern (for pattern-related error messages)
         >
     </label>
     <label>
@@ -33,7 +37,7 @@ Validation rules are specified entirely within the form control elements themsel
             data-fv-validate
             data-fv-display-name="Email"
             data-fv-required
-            data-fv-pattern-preset="email"      <-- Use the email regex pattern preset
+            data-fv-pattern-preset="email"      <== Use the email regex pattern preset
         >
     </label>
     <label>
@@ -45,7 +49,7 @@ Validation rules are specified entirely within the form control elements themsel
             data-fv-validate
             data-fv-display-name="Email confirmation"
             data-fv-required
-            data-fv-match="email"               <-- Value must match to the `email` field
+            data-fv-match="email"               <== Value must match to the `email` field
         >
     </label>
 </form>
@@ -71,7 +75,7 @@ fv.watchAllFields();
 
 
 /*
- * Perform any additional custom validation checks if you need to
+ * Perform any additional custom validity checks if you need to
  */
 const usernameField = fv.getField("username")!;
 usernameField.addInvalidator(

@@ -26,6 +26,11 @@ export abstract class UserEntryField extends StandardField {
 		super(elmt);
 		this.elmt = elmt;
 
+		this.checkOnAttributesChange([
+			"data-fv-min-length",
+			"data-fv-max-length"
+		]);
+
 		//check minimum length
 		this.addInvalidator((_value, invalidate) => {
 			if (this.elmt.dataset.fvMinLength !== undefined) {

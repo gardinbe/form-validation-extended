@@ -25,6 +25,11 @@ export class NumericField extends UserEntryField {
 		super(elmt);
 		this.elmt = elmt;
 
+		this.checkOnAttributesChange([
+			"data-fv-min",
+			"data-fv-max"
+		]);
+
 		//check minimum value
 		this.addInvalidator((_value, invalidate) => {
 			if (this.elmt.dataset.fvMin !== undefined) {
