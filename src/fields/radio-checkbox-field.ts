@@ -54,24 +54,24 @@ export class RadioCheckboxField extends Field {
 	override checkOnChange() {
 		super.checkOnChange();
 
-		if (this.valueEventHandler === null)
+		if (this.eventHandler === null)
 			return;
 
 		for (const elmt of this.associatedElmts) {
-			elmt.addEventListener("input", this.valueEventHandler);
-			elmt.addEventListener("change", this.valueEventHandler);
+			elmt.addEventListener("input", this.eventHandler);
+			elmt.addEventListener("change", this.eventHandler);
 		}
 	}
 
-	override stopCheckingOnChange() {
-		super.stopCheckingOnChange();
+	override ignoreOnChange() {
+		super.ignoreOnChange();
 
-		if (this.valueEventHandler === null)
+		if (this.eventHandler === null)
 			return;
 
 		for (const elmt of this.associatedElmts) {
-			elmt.removeEventListener("input", this.valueEventHandler);
-			elmt.removeEventListener("change", this.valueEventHandler);
+			elmt.removeEventListener("input", this.eventHandler);
+			elmt.removeEventListener("change", this.eventHandler);
 		}
 	}
 }

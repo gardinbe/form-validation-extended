@@ -80,7 +80,7 @@ export abstract class Field {
 	 * 
 	 * Not publically exposed - call `checkValidity()` to get this.
 	 */
-	private valid: boolean;
+	private valid = false;
 
 	/** List of all errors on the field. */
 	readonly errors: string[] = [];
@@ -88,24 +88,18 @@ export abstract class Field {
 	/** Array of invalidator function to check and determine the field's validity. */
 	private readonly invalidators: FieldInvalidator[] = [];
 
-	/** The other field whose value this field must match. */
-	matchTo: Field | null;
-	/** The other fields whose values must match this field. */
-	readonly matchOf: Field[];
+	/** The other field whose value this field must match. Set by the parent `FormValidator`. */
+	matchTo: Field | null = null;
+	/** The other fields whose values must match this field. Set by the parent `FormValidator`. */
+	readonly matchOf: Field[] = [];
 
-	protected valueEventHandler: ((this: void, ev: Event) => void) | null = null;
+	protected eventHandler: ((this: void, ev: Event) => void) | null = null;
 
 	/**
 	 * @param elmt The form control element associated with this field.
 	 */
 	constructor(elmt: FieldElement) {
 		this.elmt = elmt;
-
-		this.valid = false;
-
-		//these are set by the parent `FormValidator`
-		this.matchTo = null;
-		this.matchOf = [];
 
 		this.errorsListElmt = document
 			.querySelector<HTMLUListElement>(`[data-fv-errors="${elmt.name}"]`);
@@ -172,13 +166,13 @@ export abstract class Field {
 		 */
 		const setAndGetInstances = (when: FieldInvalidatorWhen) =>
 			this.invalidators
-				.filter(inv => inv.when === when)
-				.map(inv => {
-					inv.instance = inv.check(
+				.filter(invalidator => invalidator.when === when)
+				.map(invalidator => {
+					invalidator.instance = invalidator.check(
 						this.elmt.value,
 						this.invalidate.bind(this)
 					);
-					return inv.instance;
+					return invalidator.instance;
 				});
 
 		//cancel the currently running invalidation checks
@@ -210,25 +204,22 @@ export abstract class Field {
 			when: options?.when ?? "with-other-checks",
 			//TODO -> this implementation seems very wrong...
 			check(value, invalidate) {
-				return new CancellablePromise((resolve, _reject, signal) => {
+				return new CancellablePromise((resolve, _reject, signal) =>
 					void (async () => {
 						if (options?.debounce !== undefined) {
 							await delay(options.debounce);
-							//check if this inner promise should be disregarded
-							if (signal.aborted)
+							if (signal.aborted) //if the CancellablePromise has already been canelled & rejected
 								return;
 						}
 
 						await invalidator(value, reason => {
-							//check if this inner promise should be disregarded
-							if (signal.aborted)
+							if (signal.aborted) //if the CancellablePromise has already been canelled & rejected
 								return;
 							invalidate(reason);
 						});
 
 						resolve();
-					})();
-				});
+					})());
 			},
 			instance: null
 		};
@@ -272,7 +263,7 @@ export abstract class Field {
 	}
 
 	/**
-	 * Watch the field's attributes and check it's validity if they change.
+	 * Watch the field's specified attributes and check it's validity if they change.
 	 * @param attributes Target attributes
 	 */
 	protected checkOnAttributesChange(attributes: string | string[]) {
@@ -288,26 +279,25 @@ export abstract class Field {
 	 * @param callback Callback function executed after validity checks
 	 */
 	checkOnChange() {
-		if (this.valueEventHandler !== null)
+		if (this.eventHandler !== null)
 			return;
 
-		this.valueEventHandler = () => {
+		this.eventHandler = () =>
 			void this.checkValidity();
-		};
 
-		this.elmt.addEventListener("input", this.valueEventHandler);
-		this.elmt.addEventListener("change", this.valueEventHandler);
+		this.elmt.addEventListener("input", this.eventHandler);
+		this.elmt.addEventListener("change", this.eventHandler);
 	}
 
 	/**
 	 * Stop checking the field's validity on any changes.
 	 */
-	stopCheckingOnChange() {
-		if (this.valueEventHandler === null)
+	ignoreOnChange() {
+		if (this.eventHandler === null)
 			return;
 
-		this.elmt.removeEventListener("input", this.valueEventHandler);
-		this.elmt.removeEventListener("change", this.valueEventHandler);
+		this.elmt.removeEventListener("input", this.eventHandler);
+		this.elmt.removeEventListener("change", this.eventHandler);
 	}
 
 	/**

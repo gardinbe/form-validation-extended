@@ -4,7 +4,7 @@ A replacement to and an extension of standard HTML form validation.
 
 **Validation rules are specified as attributes on the form control elements themselves**: forms can be built very rapidly without having to write any JS at all.
 
-**You can define your own custom validity checks to be executed alongside the other validity checks**: perhaps you need to communicate with an API to determine the validity of the value... you can achieve that with this. An example of this is below.
+**You can define your own custom validity checks** to be executed alongside the other validity checks. This includes asynchronous checks: perhaps you need to communicate with an API to determine the validity of the value, etc. An example of this is below.
 
 **Dynamic forms are supported**: *every* change, addition or removal of a form control is immediately recognised and reflected.
 
@@ -61,25 +61,30 @@ A replacement to and an extension of standard HTML form validation.
 # Example JS
 
 ```typescript
-/*
- * Get the form and instantiate the FormValidator.
- */
+//------------------------------------------------
+// Get the form and instantiate the FormValidator
+//------------------------------------------------
+
 const form = document.querySelector("form")!;
 const fv = new FormValidator(form);
 
 
-/*
- * Watch and validate all field changes (after their initial values have been changed)
- */
+
+//-------------------------------------------------------------------------------------
+// Watch and validate all field changes (after their initial values have been changed)
+//-------------------------------------------------------------------------------------
+
 fv.watchAllFields();
 
 
-/*
- * Perform any additional custom validity checks if you need to
- */
+
+//--------------------------------------------------------------
+// Perform any additional custom validity checks if you need to
+//--------------------------------------------------------------
+
 const usernameField = fv.getField("username")!;
 usernameField.addInvalidator(
-	async (value, invalidate) => { 
+	async (value, invalidate) => {
 		const exists = await checkIfUsernameExists(value); //make an api call, for example
 		if (exists)
 			invalidate("This username is in use");
@@ -91,14 +96,22 @@ usernameField.addInvalidator(
 );
 
 
-/*
- * On form submission
- */
+
+//--------------------
+// On form submission
+//--------------------
+
 form.addEventListener("submit", ev => {
 	ev.preventDefault();
 
 	void (async () => {
-		//check the validity of the entire form
+
+        //---------------------------------------
+		// Check the validity of the entire form
+        //---------------------------------------
+		// if the form is invalid, or if the validity check is cancelled
+		// by the user changing the inputs or resubmitting the form, do not submit.
+
 		if (!(await fv.checkValidity()))
 			return;
 
@@ -118,17 +131,51 @@ The current validity of the field.
 #### `data-fv-checking-validity="[true/false]"`
 Whether the validity of the field is currently being checked.
 
-This can be particularly useful when performing asynchronous validity checks, as you can display a loading indicator to indicate such to the user. See an example of this with the 'username' field on the registration-form provided within `examples`.
+This can be particularly useful when performing asynchronous validity checks, as you can display a loading indicator to indicate such to the user. See an example of this with the 'username' field on the registration-form provided within the [examples](https://github.com/gardinbe/form-validation-extended/tree/master/examples).
 
 
 
 
 # User-defined attributes
 
+## Field error lists
+
+#### `data-fv-errors="[field-name]"`
+You can specifiy the list element for where the errors of particular field should be printed to.
+
+If omitted, there won't be any clear indication to the user as to why a field would be invalid.
+
+For example:
+
+```html
+<ul data-fv-errors="age"></ul>
+```
+
+
+
+
+## Reused form control attributes
+These are form control attributes that have been repurposed/reused and have an effect on the field's validity.
+
+#### `disabled`
+Whether the field should be disabled or not.
+
+A field that's `disabled` or has no `data-fv-validate` attribute will always be valid, regardless of it's value.
+
+**Note**: Adding the `disabled` attribute to a field retains the default behaviour (user inputs disabled, and not included within form submissions). *To disable only the validation of the field, look at* `data-fv-validate`.
+
+
+
+
 ## All form controls
 
 #### `data-fv-validate="[empty or truthy value]"`
 Whether the field should be validated or not.
+
+A field that's `disabled` or has no `data-fv-validate` attribute will always be valid, regardless of it's value.
+
+
+
 
 #### `data-fv-required="[empty or truthy value]"`
 Whether the field can have a default/empty value.

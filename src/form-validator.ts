@@ -74,7 +74,7 @@ export class FormValidator {
 	 */
 	ignoreAllFields() {
 		for (const field of this.fields)
-			field.stopCheckingOnChange();
+			field.ignoreOnChange();
 	}
 
 	/**

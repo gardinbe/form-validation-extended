@@ -1,5 +1,5 @@
 /**
- * Check if a dataset item is truthy or not.
+ * Check whether a dataset item is truthy or not.
  * @param datasetItem Target dataset item
  * @returns true/false
  */

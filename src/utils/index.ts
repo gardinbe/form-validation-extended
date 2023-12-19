@@ -1,5 +1,5 @@
 export * from "./cancellable-promise";
 export * from "./dataset-is-truthy";
 export * from "./delay";
-export * from "./observer";
+export * from "./mutation-observer";
 
