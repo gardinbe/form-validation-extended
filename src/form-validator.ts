@@ -155,7 +155,7 @@ export class FormValidator {
 
 	/**
 	 * Add a field to the form validator.
-	 * @param elmt Target field
+	 * @param field Target field
 	 */
 	addField(field: Field) {
 		//if the type changes, delete the old field an re-instatiate a new one

@@ -276,7 +276,6 @@ export abstract class Field {
 
 	/**
 	 * Watch the field's value and check it's validity on any changes.
-	 * @param callback Callback function executed after validity checks
 	 */
 	checkOnChange() {
 		if (this.eventHandler !== null)
