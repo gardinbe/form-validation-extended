@@ -21,7 +21,7 @@ export type FieldElement<
 		fvRequired?: string;
 		/**
 		 * The display name used for the field.
-		 * 
+		 *
 		 * If omitted, error messages will appear far more generic.
 		 */
 		fvDisplayName?: string;
@@ -45,22 +45,22 @@ type RawFieldInvalidator = (...args: Parameters<FieldInvalidatorCheck>) => void 
 type AddFieldInvalidationCheckOptions = {
 	/**
 	 * Time (in milliseconds) to wait before executing the check after a field value change occurs.
-	 * 
+	 *
 	 * If the field value changes again before the time is up, the invalidation check will be cancelled.
-	 * 
+	 *
 	 * @defaultValue undefined
 	 */
 	debounce?: number;
 	/**
 	 * When to perform this check.
-	 * 
+	 *
 	 * `"with-other-checks"` - Execute this check alongside all of the other default checks.
-	 * 
+	 *
 	 * `"before-other-checks"` - Execute this check before the other checks have executed.
-	 * 
+	 *
 	 * `"after-other-checks-passed"` - Execute this check after all of the other checks have executed **and passed**.
 	 * Bear in mind that *'other checks'* in this case means all other checks that are not `"after-other-checks-passed"` ones.
-	 * 
+	 *
 	 * @defaultValue "with-other-checks"
 	 */
 	when: FieldInvalidatorWhen;
@@ -78,7 +78,7 @@ export abstract class Field {
 
 	/**
 	 * The validity of the field.
-	 * 
+	 *
 	 * Not publically exposed - call `checkValidity()` to get this.
 	 */
 	private valid = false;
