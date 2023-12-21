@@ -10,9 +10,9 @@ export type TextFieldElement = UserEntryFieldElement<
 		fvPattern?: string;
 		/** The label for the pattern, e.g. postcode, phone number, etc. */
 		fvPatternLabel?: string;
-		/** 
+		/**
 		 * The regex pattern preset for the field.
-		 * 
+		 *
 		 * This takes priority over the standard pattern and pattern label if set.
 		 */
 		fvPatternPreset?: string;

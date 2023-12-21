@@ -25,7 +25,7 @@ export class CancellablePromise<T> extends Promise<T> {
 
 	/**
 	 * Cancel the promise.
-	 * 
+	 *
 	 * This rejects the promise and then updates the abort signal.
 	 */
 	cancel() {

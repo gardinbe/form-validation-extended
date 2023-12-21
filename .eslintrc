@@ -22,7 +22,7 @@
 		"eslint-plugin-tsdoc"
 	],
 	"parserOptions": {
-		"project": "tsconfig.json",
+		"project": "tsconfig.json", //OVERRIDE
 		"parser": "@typescript-eslint/parser"
 	},
 	"settings": {
@@ -35,12 +35,22 @@
 		"import/resolver": {
 			"typescript": {
 				"alwaysTryTypes": true, //always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-				"project": "tsconfig.json"
+				"project": "tsconfig.json" //OVERRIDE
 			}
 		}
 	},
 	"rules": {
 		"tsdoc/syntax": "warn",
+		"import/newline-after-import": [
+			"error",
+			{
+				"count": 1,
+				"exactCount": true,
+				"considerComments": true
+			}
+		],
+		"@typescript-eslint/no-explicit-any": "error",
+		"@typescript-eslint/semi": "error",
 		"@typescript-eslint/member-delimiter-style": [
 			"error",
 			{
@@ -54,8 +64,6 @@
 				}
 			}
 		],
-		"@typescript-eslint/no-explicit-any": "error",
-		"@typescript-eslint/semi": "error",
 		"quote-props": [
 			"error",
 			"consistent-as-needed"
@@ -98,6 +106,7 @@
 				"ignoreTemplateLiterals": true,
 				"ignoreRegExpLiterals": true
 			}
-		]
+		],
+		"no-trailing-spaces": "error"
 	}
 }

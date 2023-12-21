@@ -174,9 +174,6 @@ Whether the field should be validated or not.
 
 A field that's `disabled` or has no `data-fv-validate` attribute will always be valid, regardless of it's value.
 
-
-
-
 #### `data-fv-required="[empty or truthy value]"`
 Whether the field can have a default/empty value.
 
@@ -190,7 +187,10 @@ This specifies the name of another field whose value this one must match.
 
 For example confirm email, password, etc.
 
-### User-entry form controls
+
+
+
+## User-entry form controls
 Any form control of the following type is considered a user-entry field:
 
 - `text`
