@@ -1,5 +1,4 @@
 # form-validation-extended
-
 A replacement to and an extension of standard HTML form validation.
 
 **Validation rules are specified as attributes on the form control elements themselves**: forms can be built very rapidly without having to write any JS at all.
@@ -8,8 +7,15 @@ A replacement to and an extension of standard HTML form validation.
 
 **Dynamic forms are supported**: *every* change, addition or removal of a form control is immediately recognised and reflected.
 
+# See the examples
+The best way to understand how to use this utility is by looking at the examples.
 
+1. Clone the repo: https://github.com/gardinbe/form-validation-extended
+2. Install deps: `npm i`
+3. Serve the examples: `npm run dev`
+4. Open [http://localhost:5173](http://localhost:5173)
 
+The code for the examples is found under `/examples`.
 
 # Example HTML
 
