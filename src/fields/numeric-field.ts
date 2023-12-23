@@ -5,9 +5,13 @@ export type NumericFieldElement = UserEntryFieldElement<
 	HTMLInputElement,
 	"date" | "month" | "week" | "time" | "datetime-local" | "number" | "range",
 	{
-		/** The minimum numeric value the field can have. */
+		/**
+		 * The minimum numeric value the field can have.
+		 */
 		fvMin?: string;
-		/** The maximum numeric value the field can have. */
+		/**
+		 * The maximum numeric value the field can have.
+		 */
 		fvMax?: string;
 	}
 >;
@@ -32,26 +36,32 @@ export class NumericField extends UserEntryField {
 
 		//check minimum value
 		this.addInvalidator((_value, invalidate) => {
-			if (this.elmt.dataset.fvMin !== undefined) {
-				const min = parseInt(this.elmt.dataset.fvMin);
-				if (isNaN(min))
-					throw new Error(`Form control '${this.elmt.name}' has an invalid minimum 'data-fv-min' value`);
+			if (this.elmt.dataset.fvMin === undefined)
+				return;
 
-				if (parseInt(this.elmt.value) < min)
-					invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must be greater than or equal to ${min}`);
+			const min = parseInt(this.elmt.dataset.fvMin);
+			if (isNaN(min)) {
+				console.error(`Form control '${this.elmt.name}' has an invalid minimum 'data-fv-min' value.`);
+				return;
 			}
+
+			if (parseInt(this.elmt.value) < min)
+				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must be greater than or equal to ${min}`);
 		});
 
 		//check maximum value
 		this.addInvalidator((_value, invalidate) => {
-			if (this.elmt.dataset.fvMax !== undefined) {
-				const min = parseInt(this.elmt.dataset.fvMax);
-				if (isNaN(min))
-					throw new Error(`Form control '${this.elmt.name}' has an invalid maximum 'data-fv-max' value`);
+			if (this.elmt.dataset.fvMax === undefined)
+				return;
 
-				if (parseInt(this.elmt.value) > min)
-					invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must be less than or equal to ${min}`);
+			const min = parseInt(this.elmt.dataset.fvMax);
+			if (isNaN(min)) {
+				console.error(`Form control '${this.elmt.name}' has an invalid maximum 'data-fv-max' value.`);
+				return;
 			}
+
+			if (parseInt(this.elmt.value) > min)
+				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must be less than or equal to ${min}`);
 		});
 	}
 }

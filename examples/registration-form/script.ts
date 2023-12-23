@@ -5,7 +5,23 @@ import { FormValidator } from "../../src/form-validator";
 //------------------------------------------------
 
 const form = document.querySelector("form")!;
-const fv = new FormValidator(form);
+const fv = new FormValidator(form, {
+	patternPresets: {
+		"very-cool": {
+			pattern: /very-cool/,
+			error: "This is not a cool value" //can be a string
+		},
+		"amazing": {
+			pattern: /amazing/,
+			error(name) { //or a function using the `data-fv-display-name`
+				return `${name} must have 'amazing' within it`;
+			}
+		}
+	},
+	errorHtmlTemplate(message) {
+		return `<li>${message}</li>`;
+	}
+});
 
 //have a look in devtools...
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -35,7 +51,7 @@ usernameField.addInvalidator(
 	},
 	{
 		debounce: 1000, //delay between invalidator executions (don't spam the api)
-		when: "after-other-checks-passed" //you'll probably want this option for api calls
+		when: "after-others" //you'll probably want this option for api calls
 	}
 );
 

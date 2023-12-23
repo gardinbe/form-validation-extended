@@ -29,12 +29,10 @@ export abstract class StandardField extends Field {
 		//is the field required
 		this.addInvalidator((value, invalidate) => {
 			if (
-				this.elmt.dataset.fvRequired !== undefined
-				&& this.matchTo === null
-				&& datasetIsTrue(this.elmt.dataset.fvRequired)
-				&& value === ""
+				datasetIsTrue(this.elmt.dataset.fvRequired)
+				&& value === "" //TODO -> edge case where matchTo is not required
 			)
 				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} is required`);
-		});
+		}, { when: "with-initial" });
 	}
 }

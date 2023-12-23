@@ -1,0 +1,10 @@
+ - more password validation options
+ - functionality is there to instantiate and validate fields without forms... better apis for it - move `FormValidator.createField` out of the FormValidator class
+ - more customizable field error messages
+ - handle form submission & form disabling while submitting? or is that not in scope of validation?
+ - framework integration? (could be a pain)
+ - override more default form control attributes? (i think not... might cause issues, and semantics might be weird). though would work well with Umbraco forms, etc...
+
+
+
+ pattern presets label DOES override

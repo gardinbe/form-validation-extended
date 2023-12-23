@@ -20,8 +20,8 @@
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
 		"useUnknownInCatchVariables": true,
-		//~~~ input and output
 		"forceConsistentCasingInFileNames": true,
+		//~~~ input and output
 		"lib": [
 			"ES2022",
 			"DOM"

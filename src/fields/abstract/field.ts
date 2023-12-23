@@ -1,4 +1,6 @@
+import { merge } from "lodash";
 import { FormControlElement, FormControlElementType } from "../../types/form-control-element";
+import { OptionalProps } from "../../types/utils";
 import { CancellablePromise, datasetIsTrue, delay, watchAttributes } from "../../utils";
 
 /** Base form control element that all other form control elements inherit. */
@@ -9,15 +11,23 @@ export type FieldElement<
 > = TElement & {
 	type: TElementType;
 	dataset: {
-		/** The current validity of the field. */
+		/**
+		 * The current validity of the field.
+		 */
 		fvValid?: string;
-		/** Whether the validity of the field is currently being checked. */
+		/**
+		 * Whether the validity of the field is currently being checked.
+		 */
 		fvCheckingValidity?: string;
 
 
-		/** Whether the field should be validated or not. */
+		/**
+		 * Whether the field should be validated or not.
+		 */
 		fvValidate?: string;
-		/** Whether the field can have a default/empty value. */
+		/**
+		 * Whether the field can have a default/empty value.
+		 */
 		fvRequired?: string;
 		/**
 		 * The display name used for the field.
@@ -25,13 +35,21 @@ export type FieldElement<
 		 * If omitted, error messages will appear far more generic.
 		 */
 		fvDisplayName?: string;
-		/** The name of the field whose value this one must match. */
+		/**
+		 * The name of the field whose value this one must match.
+		 */
 		fvMatch?: string;
 	} & TDataset;
 };
 
-type FieldInvalidatorWhen = "with-other-checks" | "before-other-checks" | "after-other-checks-passed";
+type FieldInvalidatorWhen =
+	"with-initial"
+	| "after-initial"
+	| "with-others"
+	| "after-others";
+
 type FieldInvalidatorCheck = (value: string, invalidate: (reason: string) => void) => CancellablePromise<void>;
+
 /** Field invalidator object to check and determine the field's validity. */
 type FieldInvalidator = {
 	when: FieldInvalidatorWhen;
@@ -39,8 +57,8 @@ type FieldInvalidator = {
 	instance: ReturnType<FieldInvalidatorCheck> | null;
 };
 
-/** A non-cancellable field invalidator check. */
-type RawFieldInvalidator = (...args: Parameters<FieldInvalidatorCheck>) => void | Promise<void>;
+/** A base field invalidator check. */
+type BaseFieldInvalidator = (...args: Parameters<FieldInvalidatorCheck>) => void | Promise<void>;
 
 type AddFieldInvalidationCheckOptions = {
 	/**
@@ -54,27 +72,47 @@ type AddFieldInvalidationCheckOptions = {
 	/**
 	 * When to perform this check.
 	 *
-	 * `"with-other-checks"` - Execute this check alongside all of the other default checks.
+	 * `"with-initial"` - Execute this check alongside the initial ones *(such as the 'data-fv-required' check)*. It's ***not recommended*** to use this one.
 	 *
-	 * `"before-other-checks"` - Execute this check before the other checks have executed.
+	 * `"after-initial"` - Execute this check after the initial ones *(such as
+	 * the 'data-fv-required' check)* have passed.
 	 *
-	 * `"after-other-checks-passed"` - Execute this check after all of the other checks have executed **and passed**.
-	 * Bear in mind that *'other checks'* in this case means all other checks that are not `"after-other-checks-passed"` ones.
+	 * `"with-others"` - Execute this check alongside all the other default ones.
 	 *
-	 * @defaultValue "with-other-checks"
+	 *
+	 * `"after-others"` - Execute this check after all the other ones have passed.
+	 * Bear in mind that *'other ones'* in this case means all other checks that are not `"after-others"` ones.
+	 *
+	 * @defaultValue "with-others"
 	 */
 	when: FieldInvalidatorWhen;
+};
+
+export type FieldOptions = {
+	/**
+	 * Provide the HTML template for how the error elements will be rendered.
+	 * @param message - Error message to be rendered
+	 */
+	errorHtmlTemplate?(message: string): string;
 };
 
 /**
  * Represents a form field.
  */
 export abstract class Field {
+	static readonly defaultOptions: Required<OptionalProps<FieldOptions>> = {
+		errorHtmlTemplate(messsage) {
+			return `<div>${messsage}</div>`;
+		}
+	};
+
 	/** The control associated with this field. */
 	readonly elmt: FieldElement;
 
-	/** The list element where errors will be displayed to.  */
-	readonly errorsListElmt: HTMLUListElement | null;
+	/** The element where errors will be displayed to.  */
+	readonly errorsElmt: HTMLElement | null;
+
+	protected readonly options: Required<FieldOptions>;
 
 	/**
 	 * The validity of the field.
@@ -89,20 +127,24 @@ export abstract class Field {
 	/** Array of invalidator function to check and determine the field's validity. */
 	private readonly invalidators: FieldInvalidator[] = [];
 
-	/** The other field whose value this field must match. Set by the parent `FormValidator`. */
+	/** The other field whose value this one must match. Set by the parent `FormValidator`. */
 	matchTo: Field | null = null;
+	matchToObserver: MutationObserver | null = null;
+
 	/** The other fields whose values must match this field. Set by the parent `FormValidator`. */
 	readonly matchOf: Field[] = [];
+	matchOfObservers: Map<Field, MutationObserver> = new Map();
 
 	protected eventHandler: ((this: void, ev: Event) => void) | null = null;
 
 	/**
 	 * @param elmt - The form control element associated with this field.
 	 */
-	constructor(elmt: FieldElement) {
+	constructor(elmt: FieldElement, options?: Partial<FieldOptions>) {
 		this.elmt = elmt;
+		this.options = merge({}, Field.defaultOptions, options);
 
-		this.errorsListElmt = document
+		this.errorsElmt = document
 			.querySelector<HTMLUListElement>(`[data-fv-errors="${elmt.name}"]`);
 
 		this.checkOnAttributesChange([
@@ -116,16 +158,14 @@ export abstract class Field {
 		this.addInvalidator((value, invalidate) => {
 			if (
 				this.matchTo !== null
-				&& (value !== this.matchTo.elmt.value
-					|| (value === "" && datasetIsTrue(this.matchTo.elmt.dataset.fvRequired)))
-			) {
+				&& value !== this.matchTo.elmt.value
+			)
 				invalidate(
 					this.matchTo.elmt.dataset.fvDisplayName !== undefined
 						? `${this.elmt.dataset.fvDisplayName ?? "This"} does not match ${this.matchTo.elmt.dataset.fvDisplayName}`
 						: `${this.elmt.dataset.fvDisplayName ?? "This"} does not match`
 				);
-			}
-		});
+		}, { when: "after-initial" });
 	}
 
 	/**
@@ -143,7 +183,7 @@ export abstract class Field {
 		try {
 			await this.runInvalidationChecks();
 		} catch (e) {
-			//if cancelled, invalidate
+			//if cancelled, invalidate if it hasn't been already
 			this.invalidate();
 			return false;
 		}
@@ -180,41 +220,47 @@ export abstract class Field {
 		for (const invalidator of this.invalidators)
 			invalidator.instance?.cancel();
 
-		await Promise.all(setAndGetInstances("before-other-checks"));
+		await Promise.all(setAndGetInstances("with-initial"));
 
 		//only continue if these checks all passed
 		if (!this.valid)
 			return;
 
-		await Promise.all(setAndGetInstances("with-other-checks"));
+		await Promise.all(setAndGetInstances("after-initial"));
 
 		//only continue if these checks all passed
 		if (!this.valid)
 			return;
 
-		await Promise.all(setAndGetInstances("after-other-checks-passed"));
+		await Promise.all(setAndGetInstances("with-others"));
+
+		//only continue if these checks all passed
+		if (!this.valid)
+			return;
+
+		await Promise.all(setAndGetInstances("after-others"));
 	}
 
 	/**
-	 * Add an additional invalidation check to the field.
+	 * Add an invalidation check to the field.
 	 * @param invalidator - Invalidation check function. Call `invalidate` with a reason to invalidate the field.
 	 * @param options - Options
 	 */
-	addInvalidator(invalidator: RawFieldInvalidator, options?: Partial<AddFieldInvalidationCheckOptions>) {
+	addInvalidator(invalidator: BaseFieldInvalidator, options?: Partial<AddFieldInvalidationCheckOptions>) {
 		const transformedInvalidator: FieldInvalidator = {
-			when: options?.when ?? "with-other-checks",
+			when: options?.when ?? "with-others",
 			//TODO -> this implementation seems very wrong...
 			check(value, invalidate) {
 				return new CancellablePromise((resolve, _reject, signal) =>
 					void (async () => {
 						if (options?.debounce !== undefined) {
 							await delay(options.debounce);
-							if (signal.aborted) //if the CancellablePromise has already been canelled & rejected
+							if (signal.aborted) //if the outer CancellablePromise has already been canelled & rejected
 								return;
 						}
 
 						await invalidator(value, reason => {
-							if (signal.aborted) //if the CancellablePromise has already been canelled & rejected
+							if (signal.aborted) //if the outer CancellablePromise has already been canelled & rejected
 								return;
 							invalidate(reason);
 						});
@@ -234,13 +280,12 @@ export abstract class Field {
 	protected validate() {
 		this.errors.splice(0, this.errors.length);
 
-		if (this.errorsListElmt !== null)
-			while (this.errorsListElmt.lastChild !== null)
-				this.errorsListElmt.removeChild(this.errorsListElmt.lastChild);
-
-		this.elmt.dataset.fvValid = "true";
+		if (this.errorsElmt !== null)
+			while (this.errorsElmt.lastChild !== null)
+				this.errorsElmt.removeChild(this.errorsElmt.lastChild);
 
 		this.valid = true;
+		this.elmt.dataset.fvValid = "true";
 	}
 
 	/**
@@ -251,16 +296,12 @@ export abstract class Field {
 		if (reason !== undefined) {
 			this.errors.push(reason);
 
-			if (this.errorsListElmt !== null) {
-				const li = document.createElement("li");
-				li.textContent = reason;
-				this.errorsListElmt.appendChild(li);
-			}
+			if (this.errorsElmt !== null)
+				this.errorsElmt.insertAdjacentHTML("beforeend", this.options.errorHtmlTemplate(reason));
 		}
 
-		this.elmt.dataset.fvValid = "false";
-
 		this.valid = false;
+		this.elmt.dataset.fvValid = "false";
 	}
 
 	/**
@@ -268,7 +309,7 @@ export abstract class Field {
 	 * @param attributes - Target attributes
 	 */
 	protected checkOnAttributesChange(attributes: string | string[]) {
-		watchAttributes(
+		watchAttributes( //TODO -> not ideal spawning an observer on each subclass...
 			this.elmt,
 			attributes,
 			() => void this.checkValidity()
@@ -301,7 +342,7 @@ export abstract class Field {
 	}
 
 	/**
-	 * Create the initial dataset properties.
+	 * Create the initial dataset attributes.
 	 */
 	protected initDataset() {
 		this.elmt.dataset.fvValid = `${this.valid}`;

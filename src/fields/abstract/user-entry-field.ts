@@ -7,9 +7,13 @@ export type UserEntryFieldElement<
 	TElementType extends UserEntryFormControlElementType = UserEntryFormControlElementType,
 	TDataset extends object = object
 > = StandardFieldElement<TElement, TElementType, TDataset & {
-	/** Minimum length of the value. */
+	/**
+	 * Minimum length of the value.
+	 */
 	fvMinLength?: string;
-	/** Maximum length of the value. */
+	/**
+	 * Maximum length of the value.
+	 */
 	fvMaxLength?: string;
 }>;
 
@@ -33,28 +37,32 @@ export abstract class UserEntryField extends StandardField {
 
 		//check minimum length
 		this.addInvalidator((_value, invalidate) => {
-			if (this.elmt.dataset.fvMinLength !== undefined) {
-				const minLen = parseInt(this.elmt.dataset.fvMinLength);
-				if (isNaN(minLen))
-					throw new Error(`Form control '${this.elmt.name}' has an invalid minimum length 'data-fv-min-length' value`);
+			if (this.elmt.dataset.fvMinLength === undefined)
+				return;
 
-				if (this.elmt.value.length < minLen)
-					invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must have more than ${minLen} characters`);
+			const minLen = parseInt(this.elmt.dataset.fvMinLength);
+			if (isNaN(minLen)) {
+				console.error(`Form control '${this.elmt.name}' has an invalid minimum length 'data-fv-min-length' value.`);
+				return;
 			}
 
-
+			if (this.elmt.value.length < minLen)
+				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must have more than ${minLen} characters`);
 		});
 
 		//check maximum length
 		this.addInvalidator((_value, invalidate) => {
-			if (this.elmt.dataset.fvMaxLength !== undefined) {
-				const maxLen = parseInt(this.elmt.dataset.fvMaxLength);
-				if (isNaN(maxLen))
-					throw new Error(`Form control '${this.elmt.name}' has an invalid maximum length 'data-fv-max-length' value`);
+			if (this.elmt.dataset.fvMaxLength === undefined)
+				return;
 
-				if (this.elmt.value.length >= maxLen)
-					invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must have less than or equal to ${maxLen} characters`);
+			const maxLen = parseInt(this.elmt.dataset.fvMaxLength);
+			if (isNaN(maxLen)) {
+				console.error(`Form control '${this.elmt.name}' has an invalid maximum length 'data-fv-max-length' value.`);
+				return;
 			}
+
+			if (this.elmt.value.length >= maxLen)
+				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} must have less than or equal to ${maxLen} characters`);
 		});
 	}
 }

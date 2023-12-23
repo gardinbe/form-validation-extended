@@ -15,8 +15,9 @@ export const watchAttributes = (
 
 	//theoretically possible for mutliple records to appear with same attribute if change occured in same event loop,
 	//so just take the last record added.
-	new MutationObserver(callback)
-		.observe(target, { attributes: true, attributeFilter: attrs });
+	const observer = new MutationObserver(callback);
+	observer.observe(target, { attributes: true, attributeFilter: attrs });
+	return observer;
 };
 
 /**
@@ -28,6 +29,7 @@ export const watchChildren = (
 	target: Element,
 	callback: MutationCallback
 ) => {
-	new MutationObserver(callback)
-		.observe(target, { childList: true, subtree: true });
+	const observer = new MutationObserver(callback);
+	observer.observe(target, { childList: true, subtree: true });
+	return observer;
 };

@@ -29,12 +29,11 @@ export class RadioCheckboxField extends Field {
 		//if required -> is atleast one item checked?
 		this.addInvalidator((_value, invalidate) => {
 			if (
-				this.elmt.dataset.fvRequired !== undefined
-				&& datasetIsTrue(this.elmt.dataset.fvRequired)
+				datasetIsTrue(this.elmt.dataset.fvRequired)
 				&& !this.associatedElmts.some(el => el.checked)
 			)
 				invalidate(`${this.elmt.dataset.fvDisplayName ?? "This"} is required`);
-		});
+		}, { when: "with-initial" });
 	}
 
 	override validate() {

@@ -45,6 +45,25 @@
 			</div>
 			<div class="field">
 				<label>
+					<span>Alias</span>
+					<input
+						class="field__control"
+						type="text"
+						name="alias"
+						placeholder="Alias..."
+						data-fv-validate
+						data-fv-display-name="Alias"
+						data-fv-pattern-presets="amazing;very-cool"
+					>
+				</label>
+				<ul
+					class="field__errors"
+					data-fv-errors="alias"
+				>
+				</ul>
+			</div>
+			<div class="field">
+				<label>
 					<span>Email*</span>
 					<input
 						class="field__control"
@@ -54,7 +73,7 @@
 						data-fv-validate
 						data-fv-display-name="Email"
 						data-fv-required
-						data-fv-pattern-preset="email"
+						data-fv-pattern-presets="email"
 					>
 				</label>
 				<ul
@@ -117,7 +136,7 @@
 						data-fv-validate
 						data-fv-display-name="Phone number"
 						data-fv-required
-						data-fv-pattern-preset="phone-number"
+						data-fv-pattern-presets="phone-number"
 					>
 				</label>
 				<ul
@@ -138,6 +157,7 @@
 						data-fv-display-name="Password"
 						data-fv-required
 						data-fv-min-length="6"
+						data-fv-pattern-presets="one-uppercase;one-lowercase;one-special"
 					>
 				</label>
 				<ul

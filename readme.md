@@ -8,14 +8,14 @@ A replacement to and an extension of standard HTML form validation.
 **Dynamic forms are supported**: *every* change, addition or removal of a form control is immediately recognised and reflected.
 
 # See the examples
-The best way to understand how to use this utility is by looking at the examples.
+The best way to understand how to use this tool is by looking at the examples.
 
 1. Clone the repo: https://github.com/gardinbe/form-validation-extended
 2. Install deps: `npm i`
-3. Serve the examples: `npm run dev`
+3. Serve them: `npm run examples`
 4. Open [http://localhost:5173](http://localhost:5173)
 
-The code for the examples is found under `/examples`.
+The code for them is found under /examples.
 
 # Example HTML
 
@@ -43,7 +43,7 @@ The code for the examples is found under `/examples`.
 			data-fv-validate
 			data-fv-display-name="Email"
 			data-fv-required
-			data-fv-pattern-preset="email"      <== Use the email regex pattern preset
+			data-fv-pattern-presets="email"      <== Use the email regex pattern preset
 		>
 	</label>
 	<label>
@@ -147,7 +147,7 @@ This can be particularly useful when performing asynchronous validity checks, as
 ## Field error lists
 
 #### `data-fv-errors="[field-name]"`
-You can specifiy the list element for where the errors of particular field should be printed to.
+You can specifiy the element for where the errors of particular field should be printed to.
 
 If omitted, there won't be any clear indication to the user as to why a field would be invalid.
 
@@ -239,17 +239,17 @@ The regex pattern the value must match.
 
 **Note:** Don't include the forward slashes.
 
-**Note:** This is overridden by `data-fv-pattern-preset`.
+**Note:** This is overridden by `data-fv-pattern-presets`.
 
 #### `data-fv-pattern-label="[label]"`
 The label for the pattern.
 
 For example 'postcode', 'phone number', etc.
 
-**Note:** This is overridden by `data-fv-pattern-preset`.
+**Note:** This is overridden by `data-fv-pattern-presets`.
 
-#### `data-fv-pattern-preset="[a-pattern-preset]"`
-The regex pattern preset for the field.
+#### `data-fv-pattern-presets="[a-pattern-preset]"`
+The regex pattern presets for the field.
 
 The default presets are `"email"` and `"phone-number"`. You can define additional (or replace existing) pattern presets within the options of the `FormValidator` constructor.
 

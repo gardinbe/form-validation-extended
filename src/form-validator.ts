@@ -1,26 +1,27 @@
 import { merge } from "lodash";
 import {
 	Field, FieldElement,
+	FieldOptions,
 	NumericField, NumericFieldElement,
 	RadioCheckboxField, RadioCheckboxFieldElement,
 	SelectField, SelectFieldElement,
-	TextField, TextFieldElement
+	TextField, TextFieldElement, TextFieldOptions
 } from "./fields";
 import { watchAttributes, watchChildren } from "./utils";
+import { OptionalProps } from "./types/utils";
 
 /** Options for a form validator. */
-type FormValidatorOptions = {
-	patternPresets: Record<string, RegExp>;
-};
+type FormValidatorOptions =
+	Pick<FieldOptions, "errorHtmlTemplate">
+	& Pick<TextFieldOptions, "patternPresets">;
 
 /**
  * Handles the validation of form controls/elements.
  */
 export class FormValidator {
-	private static readonly defaultOptions: FormValidatorOptions = merge(
-		{},
-		TextField.defaultOptions
-	);
+	private static readonly defaultOptions: Required<OptionalProps<
+		FormValidatorOptions
+	>> = merge({}, Field.defaultOptions, TextField.defaultOptions); //merge everything into one big options object for now
 
 	/** List of all of the fields that are being validated. */
 	readonly fields: Field[] = [];
@@ -28,7 +29,7 @@ export class FormValidator {
 	/** The form element being validated. */
 	readonly form: HTMLFormElement;
 
-	private readonly options: FormValidatorOptions;
+	private readonly options: Required<FormValidatorOptions>;
 
 	/**
 	 * @param form - Target form element
@@ -96,6 +97,7 @@ export class FormValidator {
 				//do not add the same field again
 				this.fields.some(f => f.elmt === fieldElmt)
 				//and do not add fields with the same name (radio & checkboxes)
+				//TODO -> rescan and set associated radio/checkbox fields
 				|| (fieldElmt.name !== ""
 					&& this.fields.some(f => f.elmt.name === fieldElmt.name))
 			)
@@ -181,7 +183,7 @@ export class FormValidator {
 	}
 
 	/**
-	 * Set the relations between all fields: the `match` properties.
+	 * Set the relations between all fields: the `data-fv-match` attributes.
 	 */
 	private setFieldsRelations() {
 		for (const field of this.fields)
@@ -189,48 +191,60 @@ export class FormValidator {
 	}
 
 	/**
-	 * Set the relations for a single field: the `match` property.
+	 * Set the relations for a single field: the `data-fv-match` attributes.
 	 * @param field -Target field
 	 */
 	private setFieldRelations(field: Field) {
-		if (field.elmt.dataset.fvMatch === undefined) {
-			field.matchTo = null;
+		const matchTo = field.elmt.dataset.fvMatch !== undefined
+			? this.fields.find(existingField =>
+				field.elmt.dataset.fvMatch === existingField.elmt.name) ?? null
+			: null;
+
+		//set the relationship on the field's side
+		field.matchToObserver?.disconnect(); //disconnect the old 'match's observer
+		field.matchTo = matchTo;
+
+		if (matchTo === null) {
+			if (field.elmt.dataset.fvMatch !== undefined)
+				console.error(`Failed to find form control '${field.elmt.dataset.fvMatch}' to match with '${field.elmt.name}'.`);
+
+			field.matchToObserver = watchAttributes( //reconnect an observer to call this method again
+				field.elmt,
+				"data-fv-match",
+				() => this.setFieldRelations(field)
+			);
+
 			return;
 		}
 
-		const matchTo = this.fields
-			.find(existingField =>
-				field.elmt.dataset.fvMatch === existingField.elmt.name);
-
-		if (matchTo === undefined)
-			throw new Error(`Failed to find form control '${field.elmt.dataset.fvMatch}' to match with '${field.elmt.name}'`);
-
-		//set the relationship on both sides (how romantic)
-		field.matchTo = matchTo;
-		matchTo.matchOf.push(field);
-
-		//when the match-field's name changes, change the fields 'match-field' property to target new name
-		watchAttributes(
-			matchTo.elmt,
-			"name",
-			() => field.elmt.dataset.fvMatch = matchTo.elmt.name
-		);
-
-		//when the field's 'match' property changes, update the relations again
-		watchAttributes(
+		//when the field's 'match' attribute changes, update the relations
+		field.matchToObserver = watchAttributes( //reconnect a new observer for the new 'match'
 			field.elmt,
 			"data-fv-match",
 			() => {
-				//value unchanged?
+				//value unchanged or undefined?
 				if (field.elmt.dataset.fvMatch === matchTo.elmt.name)
 					return;
 
 				//remove from match-field's list
+				matchTo.matchOfObservers.get(field)?.disconnect();
 				matchTo.matchOf.splice(matchTo.matchOf.indexOf(field));
 
 				//update relations for this field
 				this.setFieldRelations(field);
 			}
+		);
+
+		//now set the relationship on the 'match's side (how romantic)
+		matchTo.matchOf.push(field);
+		matchTo.matchOfObservers.set(
+			field,
+			//when the match-field's name changes, change the fields 'match-field' attribute to target new name
+			watchAttributes(
+				matchTo.elmt,
+				"name",
+				() => field.elmt.dataset.fvMatch = matchTo.elmt.name
+			)
 		);
 	}
 }
